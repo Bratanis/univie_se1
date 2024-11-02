@@ -1,0 +1,112 @@
+// Sownloads libraries directly from a webserver - we use this for the provided network messag implementation
+def urlFile = { url, name ->
+    File file = new File("$buildDir/download/${name}.jar")
+    file.parentFile.mkdirs()
+    if (!file.exists()) {
+        new URL(url).withInputStream { downloadStream ->
+            file.withOutputStream { fileOut ->
+                fileOut << downloadStream
+            }
+        }
+    }
+    files(file.absolutePath)
+}
+
+// Integrates Spring Boot, gives source for libraries
+buildscript {
+ 	ext {
+        springBootVersion = '3.3.2'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+// Apply the java plugin to add support for Java
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+// ensures that the res folder (with the logback config) is recognized correctly
+// if you implement some GUI based UI you need to add any icons, etc. to this folder
+// otherwise they will not be integrated in Jars
+sourceSets {
+    main {
+        resources {
+            srcDirs "res"
+        }
+    }
+}
+
+test {
+    // enables the build in jUnit 5 support for gradle
+    // useful if you want to run unit tests as part of gradle check or gradle test
+    useJUnitPlatform()
+}
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    mavenCentral()
+}
+
+// Specifies the expected java versions
+// Note, not all libraries officially support higher/lower versions
+// So we recommend to install and use the version given below
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
+
+dependencies {
+	// you will need an up to date gradle version for the Java version used this course. This project and its gradle wrapper is configured accordingly
+
+	// Spring boot. Here it's solely used for networking (overkill but a good foundation for future projects)
+	// Note the latest spring boot version is required as it added support for the Java version used in this course
+    implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
+    
+    // Java 11 removed java EE components
+    // So we need to get the jakarta reference implementation for network message marshalling
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api:4.0.2"
+    implementation "com.sun.xml.bind:jaxb-impl:4.0.2"  
+   
+    // Use the JUnit test framework, we support only version 5
+    // JUnit 4 should no longer be used
+    // Check out the unit testing slides on Moodle 
+    // to get some assistance when transitioning existing tests from 4 to 5
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+    
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+    // For data driven unit tests
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.0' 
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+    testImplementation 'org.junit.vintage:junit-vintage-engine:5.10.0'
+    
+    // To abstract dependencies based on mockito (also for tests)
+    testImplementation 'org.mockito:mockito-core:5.6.0'
+    
+    // Logging uses LogBack with the slf4j facade concept
+    implementation group: 'org.slf4j', name:'slf4j-api', version: '2.0.16'
+    implementation group: 'ch.qos.logback', name:'logback-classic', version: '1.5.7'
+    implementation group: 'ch.qos.logback', name:'logback-core', version: '1.5.7'
+  
+    // Network Messages, ensure that you always use the ones suitable for the current semester
+    // based on this jar file also a range of reference implementations for various marshalling libraries will be provided
+    // The reference implementation relies on Jakarta to support modern Java versions
+    implementation urlFile('https://homepage.univie.ac.at/kristof.boehmer/SE1/Network_Library/Jar/5.1.6.jar', 'se1_messages_5.1.6')
+}
+
+bootJar {
+    manifest {
+        attributes(
+            'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+            'Created-By'     : "Gradle ${gradle.gradleVersion}",
+            'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+            'Built-By'       : System.properties['user.name'],
+            'Build-OS'       : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
+        )
+    }
+}

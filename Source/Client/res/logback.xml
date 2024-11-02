@@ -1,0 +1,28 @@
+<configuration>
+
+   <!-- Additional appender (more complex, e.g. logging into files) are given in the logging script on Moodle -->
+   <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+       <encoder>
+           <pattern>
+               %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+           </pattern>
+       </encoder>
+   </appender>
+
+   <!-- We can set the logging behaviour for specific packages, e.g. package "client" and it's sub-packages -->
+   <logger name="client" level="DEBUG"/>
+
+   <!-- We can even control the logging behaviour for other libaries thanks to SLF4J -->
+   <!-- The logger configurations below significantly reduces the very chatty output of webflux -->
+   <logger name="reactor" level="ERROR"/>
+   <logger name="reactor.Mono" level="ERROR"/>
+   <logger name="reactor.Flux" level="ERROR"/>
+   <logger name="org.springframework.web" level="ERROR"/>
+  
+   <!-- We can set the default logging behaviour for our own code too -->
+   <!-- If you add an additonal appender "register" them here --> 
+   <root level="WARN">
+       <appender-ref ref="stdout"/>
+   </root>
+
+</configuration>
