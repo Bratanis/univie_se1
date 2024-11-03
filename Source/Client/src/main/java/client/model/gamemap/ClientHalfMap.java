@@ -1,4 +1,4 @@
-package Model.GameMap;
+package client.model.gamemap;
 
 import java.io.*;
 import java.util.*;
@@ -6,12 +6,12 @@ import java.util.*;
 /**
  * 
  */
-public class LongGameMap extends GameMap {
+public class ClientHalfMap extends GameMap {
 
 	/**
 	 * Default constructor
 	 */
-	public LongGameMap() {
+	public ClientHalfMap() {
 	}
 
 	/**

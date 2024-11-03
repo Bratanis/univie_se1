@@ -1,4 +1,4 @@
-package Model.GameMap.MapCreation;
+package client.model.gamemap.creation;
 
 import Model.GameMap.ClientHalfMap;
 
@@ -8,20 +8,21 @@ import java.util.*;
 /**
  * 
  */
-public class MapGenerator {
+public class MapValidator {
 
 	/**
 	 * Default constructor
 	 */
-	public MapGenerator() {
+	public MapValidator() {
 	}
 
 	/**
+	 * @param testMap 
 	 * @return
 	 */
-	public ClientHalfMap offerHalfMap() {
+	public boolean mapIsValid(ClientHalfMap testMap) {
 		// TODO implement here
-		return null;
+		return false;
 	}
 
 }

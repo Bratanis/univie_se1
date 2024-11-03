@@ -1,6 +1,8 @@
-package ClientNetwork.ClientNetworkCompatibilityLayer;
+package client.network.servercompatlayer;
 
-import Model.GameMap.GameMap;
+import client.model.gamemap.GameMap;
+import messagesbase.UniquePlayerIdentifier;
+import messagesbase.messagesfromclient.PlayerHalfMap;
 
 import java.io.*;
 import java.util.*;

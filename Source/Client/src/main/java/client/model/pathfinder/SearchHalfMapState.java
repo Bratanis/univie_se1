@@ -1,4 +1,4 @@
-package Model.PathFinder;
+package client.model.pathfinder;
 
 import java.io.*;
 import java.util.*;

@@ -1,7 +1,11 @@
-package Model.GameMap;
+package client.model.gamemap;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.util.*;
+
+import messagesbase.messagesfromclient.EMove;
 
 /**
  * 
@@ -22,11 +26,6 @@ public abstract class GameMap {
 	/**
 	 * 
 	 */
-	private EMapType mapType;
-
-	/**
-	 * 
-	 */
 	private Coordinates myStartingPos;
 
 	/**
@@ -34,18 +33,19 @@ public abstract class GameMap {
 	 */
 	private PropertyChangeSupport support;
 
-	/**
-	 * 
-	 */
-	private static Coordinate lastCoordinate;
 
+	
 	/**
-	 * @param mapFields 
-	 * @param type 
+	 * @param mapFields
 	 * @param startingCoordinates
 	 */
-	public GameMap(HashMap mapFields, EMapType type, Coordinates startingCoordinates) {
-		// TODO implement here
+	public GameMap(HashMap mapFields, Coordinates startingCoordinates) {
+		this.mapFields = mapFields;
+		this.myStartingPos = startingCoordinates;
+	}
+	
+	public GameMap(HashMap mapFields) {
+		this (mapFields, new Coordinates(-1, -1));
 	}
 
 	/**
