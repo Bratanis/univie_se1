@@ -5,11 +5,11 @@ import java.util.*;
 
 import client.customexceptions.IllegalConversionException;
 import client.model.GameProgress;
-import client.model.gamemap.Coordinates;
 import client.model.gamemap.GameMap;
 import client.model.gamemap.LongGameMap;
-import client.model.gamemap.MapNode;
 import client.model.gamemap.SquareGameMap;
+import client.model.gamemap.mapelements.Coordinates;
+import client.model.gamemap.mapelements.MapNode;
 import messagesbase.messagesfromserver.EFortState;
 import messagesbase.messagesfromserver.EPlayerGameState;
 import messagesbase.messagesfromserver.EPlayerPositionState;
@@ -21,13 +21,13 @@ import messagesbase.messagesfromserver.GameState;
 /**
  * 
  */
-public class NetworkToClientDataConverter {
-	
+public class ServerToClientDataConverter {
+	private Coordinates myCurrentCoordinates = new Coordinates();
 
 	/**
 	 * Default constructor
 	 */
-	public NetworkToClientDataConverter() {
+	public ServerToClientDataConverter() {
 	}
 
 	/**
@@ -46,8 +46,9 @@ public class NetworkToClientDataConverter {
 	}
 	
 	private GameProgress determineGameProgress (GameMap newGameMap, boolean collectedTreasure, EPlayerGameState myWinOrLoss) {
-
-		Coordinates myCurrentCoordinates = determineMyCoordinates(newGameMap);
+	 
+		// First make sure you have pinned your current position while extracting the map data
+		assert (myCurrentCoordinates.equals(new Coordinates()));
 		
 		boolean wonGame;
 		boolean lostGame;
@@ -63,20 +64,18 @@ public class NetworkToClientDataConverter {
 		return new GameProgress(collectedTreasure, wonGame, lostGame, myCurrentCoordinates);
 	}
 	
-	private Coordinates determineMyCoordinates(GameMap newGameMapForClient) {
-		return null;
-	};
+	
 
-	GameMap convertToLocalGameMap(FullMap serverMap) {
+	private GameMap convertToLocalGameMap(FullMap serverMap) {
 
 		HashMap<Coordinates, MapNode> localMapFields = getLocalMapFields(serverMap);
 
-		if (localMapFields.containsKey(SquareGameMap.getLastCoordinates())) {
+		if (localMapFields.containsKey(SquareGameMap.LAST_COORDINATES)) {
 			return new SquareGameMap(localMapFields);
-		} else if (localMapFields.containsKey(LongGameMap.getLastCoordinates())) {
+		} else if (localMapFields.containsKey(LongGameMap.LAST_COORDINATES)) {
 			return new LongGameMap(localMapFields);
 		} else {
-			throw new IllegalConversionException("gameState does not contain a square or rectangular map!");
+			throw new IllegalConversionException("gameState does not contain a square or rectangular map; serverMap nodes: " + serverMap.getMapNodes());
 		}
 	}
 	
@@ -96,6 +95,7 @@ public class NetworkToClientDataConverter {
 		return fields;
 	}
 	
+	// Has side effects: pins my position while iterating through the elements (not optimal, but easy and efficient)
 	private MapNode getLocalMapNode(FullMapNode sMapNode) {
 
 		boolean hasTreasure = (sMapNode.getTreasureState() == ETreasureState.MyTreasureIsPresent);
@@ -110,7 +110,17 @@ public class NetworkToClientDataConverter {
 
 		MapNode localNode = new MapNode(sMapNode.getTerrain(), hasTreasure, hasCastle, hasMe, hasEnemy);
 		
+		if (hasMe)
+			pinMyPosition(sMapNode);
+		
 		return localNode;
+	}
+
+	// Helper function to pin my position for later
+	private void pinMyPosition(FullMapNode sMapNode) {
+		int myX = sMapNode.getX();
+		int myY = sMapNode.getY();
+		this.myCurrentCoordinates = new Coordinates (myX, myY);
 	}
 	
 }

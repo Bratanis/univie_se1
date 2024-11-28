@@ -1,71 +1,182 @@
-package View;
+package client.view;
 
-import Model.GameProgress;
-import Model.GameMap.GameMap;
-import Model.GameMap.MapNode;
+import client.model.GameModel;
+import client.model.GameProgress;
+import client.model.gamemap.GameMap;
+import client.model.gamemap.mapelements.Coordinates;
+import client.model.gamemap.mapelements.MapNode;
+import messagesbase.messagesfromclient.ETerrain;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  */
 public class CLIView {
 
-	/**
-	 * Default constructor
-	 */
-	public CLIView() {
-	}
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private boolean treasureFound = false;
 
 	/**
 	 * 
 	 */
-	private PropertyChangeListener gameChangeListener;
+	private PropertyChangeListener gameProgressListener;
 
-	/**
-	 * @param gameProgress
-	 */
-	private void printGameProgress(GameProgress gameProgress) {
-		// TODO implement here
+	
+	
+	private PropertyChangeListener mapChangeListener;
+	
+	 
+	public CLIView() {
+		this.gameProgressListener = new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+            	//logger.debug("Property changed: " + evt.getPropertyName());
+                printGameProgress(evt);
+            }
+        };
+
+        this.mapChangeListener = new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+            	logger.debug("Property changed: " + evt.getPropertyName());
+                printGameMap((GameMap) evt.getNewValue());
+            }
+        };
+	}
+
+	public void setUpListeners(GameModel gameModel) {
+        gameModel.addGameProgressListener(this.gameProgressListener);
+        gameModel.addGameMapListener(this.mapChangeListener);
+    }
+
+	private void printGameProgress(PropertyChangeEvent evt) {
+		String propertyName = evt.getPropertyName();
+		Object newValue = evt.getNewValue();
+
+		switch (propertyName) {
+			case "currentRound" -> {
+				System.out.println("Round: " + newValue);
+			}
+			case "treasureCollected" -> {
+				if ((boolean) newValue) {
+					treasureFound = true;
+					System.out.println("Treasure Collected!");
+				}
+			}
+			case "wonGame" -> {
+				if ((boolean) newValue) {
+					printWinMessage();
+				}
+			}
+			case "lostGame" -> {
+				if ((boolean) newValue) {
+					printLossMessage();
+				}
+			}
+			default -> logger.warn("Unknown Game Progress Update: {}", propertyName);
+		}
+
 	}
 
 	/**
 	 * @param map
 	 */
 	private void printGameMap(GameMap map) {
-		// TODO implement here
+		System.out.println("__________________________________________________________________\n");
+
+		String printableMapRow = "";
+
+		int numOfRows =  map.getLastCoordinates().getY();
+		
+		for (int currentY = 0; currentY <= numOfRows; ++currentY) {
+			printableMapRow += getFormattedLine (currentY, map);
+		}
+
+		System.out.println(printableMapRow);
 	}
+
+	/**
+	 * helper mehtod that returns a given row of the map
+	 * 
+	 * @param yRow
+	 * @param gameMap
+	 * @return
+	 */
+	private String getFormattedLine(int yRow, GameMap map) {
+
+		int elementsPerLine =  map.getLastCoordinates().getX(); 
+		
+		String formattedMapLine = "";
+		
+//    			logger.info("mapFields: " + gameMap.toString());
+
+		for (int xCol = 0; xCol <= elementsPerLine; ++xCol) {
+			Coordinates targetCoordinates = new Coordinates(xCol, yRow);
+			MapNode targetNode = map.getNodeAt(targetCoordinates);
+		    		if (targetNode == null) {
+						logger.warn("targetNode with coordinates " + targetCoordinates + " is out of bounds!");
+					}
+			formattedMapLine += mapNodeToASCII(targetNode);
+		}
+
+		return formattedMapLine.concat("\n");
+	}
+
 
 	/**
 	 * @param mapNode 
 	 * @return
 	 */
 	private String mapNodeToASCII(MapNode mapNode) {
-		// TODO implement here
-		return "";
+		if (mapNode.hasCastle()) {
+			return " _IHI_";
+		} else if (mapNode.hasEnemy() && mapNode.hasMe()) {
+			return "!%#@✴&";
+		} else if (mapNode.hasMe()) {
+			if (treasureFound)
+				return " ($‿$)";
+			else
+				return " (°‿°)";
+		} else if (mapNode.hasEnemy()) {
+			return " (`ʖ̯´)";
+		} else if (mapNode.hasTreasure()) {
+			return " _[$]_";
+		}  else {
+
+			switch (mapNode.getTerrain()) {
+			case ETerrain.Grass:
+				return " _____";
+			case ETerrain.Water:
+				return " ~~~~~";
+			case ETerrain.Mountain:
+				return " A^A^A";
+			default:
+				return " !!!!!"; // should never be reached!
+			}
+		}
 	}
+
 
 	/**
 	 * 
 	 */
 	private void printWinMessage() {
-		// TODO implement here
+		System.out.println("CONGRATS! YOU WON THE GAME!");
 	}
 
 	/**
 	 * 
 	 */
 	private void printLossMessage() {
-		// TODO implement here
+		System.out.println("SORRY! YOU LOST THE GAME!");
 	}
 
-	/**
-	 * @return
-	 */
-	public PropertyChangeListener getGameChangeListener() {
-		// TODO implement here
-		return null;
-	}
 
 }

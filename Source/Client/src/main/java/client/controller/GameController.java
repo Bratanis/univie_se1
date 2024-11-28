@@ -1,34 +1,24 @@
-package Controller;
+package client.controller;
 
-import Model.GameModel;
+import client.customexceptions.UserInputException;
+import client.model.GameModel;
+import client.model.gamemap.GameMap;
+import client.network.ClientNetwork;
+import client.network.servercompatlayer.ModelDataEnvelope;
 
 import java.io.*;
 import java.util.*;
+
+import client.view.CLIView;
+import messagesbase.messagesfromclient.EMove;
 
 /**
  * 
  */
 public class GameController {
 
-	/**
-	 * Default constructor
-	 */
-	public GameController() {
-	}
-
-	/**
-	 * 
-	 */
 	private ClientNetwork theNetwork;
-
-	/**
-	 * 
-	 */
 	private GameModel theModel;
-
-	/**
-	 * 
-	 */
 	private CLIView theView;
 
 	/**
@@ -36,22 +26,51 @@ public class GameController {
 	 * @param model 
 	 * @param view
 	 */
-	public GameController(ClientNetwork network, GameModel model, GameView view) {
-		// TODO implement here
+	public GameController(ClientNetwork network, GameModel model, CLIView view) {
+		this.theNetwork = network;
+		this.theModel = model;
+		this.theView = view;
 	}
+
+
+	public void initializeGame() throws UserInputException{
+		if(!theNetwork.isRegistered()) {
+			theNetwork.registerClient();
+		}
+		theView.setUpListeners(theModel);
+		//theModel.generateInitialHalfMap();
+	}
+	
 
 	/**
 	 * 
 	 */
 	public void initialMapExchange() {
-		// TODO implement here
+		GameMap clientHalfMap = theModel.getGameMap();
+		theNetwork.busyWaitForMyTurn();
+		theNetwork.sendLocalMapToServer(clientHalfMap);
+		ModelDataEnvelope newData = theNetwork.getModelData();
+		theModel.updateGameModel(newData);
+		
 	}
 
 	/**
-	 * 
+	 * Keep sending the next move determined by the pathfinder (inside the model) and updating the data 
+	 * with the server response until the game is over 
 	 */
 	public void startGame() {
-		// TODO implement here
+		while (!theModel.gameIsOver()) {
+			theNetwork.busyWaitForMyTurn();
+			EMove nextMove = theModel.getNextMove();
+			theNetwork.sendMove(nextMove);
+			ModelDataEnvelope serverResponse = theNetwork.getModelData();
+			theModel.updateGameModel(serverResponse);
+		}
 	}
 
 }
+
+
+
+
+

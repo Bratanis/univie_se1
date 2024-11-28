@@ -3,9 +3,9 @@ package client.network;
 import client.customexceptions.ServerCommunicationException;
 import client.customexceptions.UserInputException;
 import client.model.gamemap.GameMap;
-import client.network.servercompatlayer.ClientToNetworkDataConverter;
+import client.network.servercompatlayer.ClientToServerDataConverter;
 import client.network.servercompatlayer.ModelDataEnvelope;
-import client.network.servercompatlayer.NetworkToClientDataConverter;
+import client.network.servercompatlayer.ServerToClientDataConverter;
 import messagesbase.ResponseEnvelope;
 import messagesbase.UniqueGameIdentifier;
 import messagesbase.UniquePlayerIdentifier;
@@ -14,6 +14,7 @@ import messagesbase.messagesfromclient.ERequestState;
 import messagesbase.messagesfromclient.PlayerHalfMap;
 import messagesbase.messagesfromclient.PlayerRegistration;
 import messagesbase.messagesfromserver.EPlayerGameState;
+import messagesbase.messagesfromserver.FullMap;
 import messagesbase.messagesfromserver.GameState;
 import messagesbase.messagesfromserver.PlayerState;
 import reactor.core.publisher.Mono;
@@ -39,6 +40,7 @@ public class ClientNetwork {
 /**
  *  Attributes:
  */
+	private boolean registeredToAGame;
 	
 	private WebClient baseWebClient;
 
@@ -48,9 +50,9 @@ public class ClientNetwork {
 
 	private GameState cachedGameState;
 
-	private NetworkToClientDataConverter fromServer;
+	private ServerToClientDataConverter fromServer;
 
-	private ClientToNetworkDataConverter toServer;
+	private ClientToServerDataConverter toServer;
 
 	
 	private Logger logger;
@@ -64,26 +66,41 @@ public class ClientNetwork {
 	 * @param currentGameID
 	 * @throws UserInputException if no UniqueGameIdentifier is provided 
 	 */
-	public ClientNetwork(URL serverBaseUrl, UniqueGameIdentifier currentGameID) throws UserInputException {
+	public ClientNetwork(URL serverBaseUrl, UniqueGameIdentifier currentGameID) {
 
 		this.logger = LoggerFactory.getLogger(ClientNetwork.class);
+		this.toServer = new ClientToServerDataConverter();
+		this.fromServer = new ServerToClientDataConverter();
 
 		// From example main method	
 		this.baseWebClient = WebClient.builder().baseUrl(serverBaseUrl + "/games")
-				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE) // we send XML (cf. network protocol)
-				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE) // we receive XML (cf. network protocol)
+				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE) 
+				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE) 
 				.build();
 
 		if (currentGameID != null) {
 			this.currentGameID = currentGameID;
 		} else {
-			throw new UserInputException("Cannot start a game without a game UniqueGameIdentifier!");
+			logger.error("User is likely trying to start a game without a GameID!"); // Ctor should not throw an exception, 
+																//but one will occur at "reuestPlayerID()" if the gameID is invalid
+			this.currentGameID = UniqueGameIdentifier.of("");
 		}
 
-		this.myPlayerID = requestPlayerID();
 
 	}
+	
+	public boolean isRegistered() {
+		return this.registeredToAGame;
+	}
 
+	
+	public void registerClient() throws UserInputException {
+		this.myPlayerID = requestPlayerID();
+		if (myPlayerID == null)
+			throw new RuntimeException ("Client registration failed: could not retrieve the playerID from server");
+		this.registeredToAGame=true;
+	}
+	
 	/**
 	 * @return 
 	 * @throws UserInputException 
@@ -96,19 +113,18 @@ public class ClientNetwork {
 				"bratanovi02");
 		Mono<ResponseEnvelope> webAccess = baseWebClient
 				.method(HttpMethod.POST)
-				.uri("/" + currentGameID + "/players")
-				.body(BodyInserters.fromValue(playerReg)) // specify the data which is sent to the server
+				.uri("/" + currentGameID.getUniqueGameID() + "/players")
+				.body(BodyInserters.fromValue(playerReg)) 
 				.retrieve().bodyToMono(ResponseEnvelope.class); 
 		ResponseEnvelope<UniquePlayerIdentifier> resultReg = webAccess.block();
 
 		if (resultReg.getState() == ERequestState.Error) {
-			logger.error("requestPlayerId failed, errormessage: " + resultReg.getExceptionMessage());
 			throw new UserInputException(resultReg.getExceptionMessage()
 					+ ". Please make sure you've created a new game before executing the client!"
 					+ " Please make sure you enter the relevant gameId when running the client!");
 		} else {
 			UniquePlayerIdentifier uniqueID = resultReg.getData().get();
-			logger.info("My Player ID: " + uniqueID.getUniquePlayerID());
+			//logger.info("My Player ID: " + uniqueID.getUniquePlayerID());
 			return uniqueID;
 		}
 	}
@@ -121,10 +137,14 @@ public class ClientNetwork {
 		delayRequest();
 		
 		PlayerHalfMap playerHalfMap = toServer.getPlayerHalfMap(myPlayerID, localHalfMap);
-
-		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.POST).uri("/" + myPlayerID + "/halfmaps")
-				.body(BodyInserters.fromValue(playerHalfMap)) // specify the data which is sent to the server
-				.retrieve().bodyToMono(ResponseEnvelope.class); // specify the object returned by the server
+		
+		assert (playerHalfMap != null);
+		
+		Mono<ResponseEnvelope> webAccess = baseWebClient
+				.method(HttpMethod.POST)
+				.uri("/" + currentGameID.getUniqueGameID()  + "/halfmaps")
+				.body(BodyInserters.fromValue(playerHalfMap))
+				.retrieve().bodyToMono(ResponseEnvelope.class);
 
 		ResponseEnvelope<UniquePlayerIdentifier> resMapPost = webAccess.block();
 
@@ -142,11 +162,11 @@ public class ClientNetwork {
 	 */
 	private void updateCachedGameState() {
 		
-		logger.debug("retrieving the most recent GameState from the Server");
+//		logger.debug("retrieving the most recent GameState from the Server");
 		delayRequest();
 		
 		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.GET)
-				.uri("/" + currentGameID + "/states/" + myPlayerID).retrieve().bodyToMono(ResponseEnvelope.class);
+				.uri("/" + currentGameID.getUniqueGameID() + "/states/" + myPlayerID.getUniquePlayerID()).retrieve().bodyToMono(ResponseEnvelope.class);
 		ResponseEnvelope<GameState> requestResult = webAccess.block();
 
 		if (requestResult.getState() == ERequestState.Error) {
@@ -155,12 +175,12 @@ public class ClientNetwork {
 		} else if (requestResult.getData() == null) {
 			logger.error("requestGameState received no data!");
 
-		} else if (requestResult.getData().get().getGameStateId() == cachedGameState.getGameStateId()) {
-			logger.warn("Attempting to update the cached GameState returned the old GameState. Client is sending requests too rapidly!");
+		} else if ((cachedGameState != null) && (requestResult.getData().get().getGameStateId().equals(cachedGameState.getGameStateId()))) {
+			//logger.warn("Attempting to update the cached GameState returned the old GameState. Client is sending requests too rapidly!");
 			delayRequest();
-			updateCachedGameState(); // Make sure does not cause infinite loop
+			updateCachedGameState();
 		} else {
-			logger.debug("Received valid GameState!");
+			//logger.debug("Received valid GameState!");
 			cachedGameState = requestResult.getData().get();
 		}
 	}
@@ -176,7 +196,7 @@ public class ClientNetwork {
 		 if (playerState.getState()  == EPlayerGameState.MustAct) {
 			return true;
 		} else {
-			logger.warn("askIfMyTurn determined playerState = " + playerState);
+			//logger.warn("askIfMyTurn determined playerState = " + playerState);
 			return false;
 		}
 	}
@@ -186,11 +206,11 @@ public class ClientNetwork {
 		Set<PlayerState> players = cachedGameState.getPlayers();
 
 		for (PlayerState playerState : players) {
-			if (playerState.getUniquePlayerID().equals(myPlayerID)) {
+			if (playerState.getUniquePlayerID().equals(myPlayerID.getUniquePlayerID())) {
 				return playerState;
 			}
 		}
-		throw new ServerCommunicationException("Couldn't retrieve my PlayerState from the cached GameState!");
+		throw new ServerCommunicationException("Couldn't retrieve my PlayerState from the cached GameState(= " + cachedGameState + ")");
 	}
 	
 
@@ -199,7 +219,12 @@ public class ClientNetwork {
 	 */
 	public ModelDataEnvelope getModelData() {
 		
-		updateCachedGameState();
+		FullMap serverMap = new FullMap();
+
+		while (serverMap.isEmpty() || serverMap.getMapNodes().size() <= 50) { // Wait until the server sends the full map
+			updateCachedGameState();
+			serverMap = cachedGameState.getMap();
+		}
 		PlayerState myCurrentPlayerState = getMyPlayerState();
 
 		ModelDataEnvelope newModelDataEnvelope = fromServer.getModelDataEnvelope(cachedGameState.getMap(), 

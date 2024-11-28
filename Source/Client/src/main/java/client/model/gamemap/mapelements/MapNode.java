@@ -1,7 +1,4 @@
-package client.model.gamemap;
-
-import java.io.*;
-import java.util.*;
+package client.model.gamemap.mapelements;
 
 import messagesbase.messagesfromclient.ETerrain;
 
@@ -13,11 +10,54 @@ public class MapNode {
 	/**
 	 * Attributes: 
 	 */
-	private ETerrain terrain;
-	private boolean hasTreasure;
-	private boolean hasCastle;
+	
 	private boolean hasMe;
 	private boolean hasEnemy;
+	private boolean hasCastle;
+	private boolean hasTreasure;
+	private ETerrain terrain;
+	
+	
+	public ETerrain getTerrain() {
+		return terrain;
+	}
+
+	public void setTerrain(ETerrain terrain) {
+		this.terrain = terrain;
+	}
+
+	
+	public boolean hasCastle() {
+		return hasCastle;
+	}
+
+	public void setHasCastle(boolean hasCastle) {
+		this.hasCastle = hasCastle;
+	}
+
+	public boolean hasMe() {
+		return hasMe;
+	}
+
+	public void setHasMe(boolean hasMe) {
+		this.hasMe = hasMe;
+	}
+
+	public boolean hasEnemy() {
+		return hasEnemy;
+	}
+
+	public void setHasEnemy(boolean hasEnemy) {
+		this.hasEnemy = hasEnemy;
+	}
+
+	public boolean hasTreasure() {
+		return this.hasTreasure;
+	}
+	
+	public void setHasTreasure(boolean hasTreasure) {
+		this.hasTreasure = hasTreasure;
+	}
 
 	
 	/**
@@ -29,10 +69,10 @@ public class MapNode {
 	 */
 	public MapNode(ETerrain terrain) {
 		this.terrain = terrain;
-		this.hasTreasure = false;
 		this.hasCastle = false;
 		this.hasMe = false;
 		this.hasEnemy = false;
+		this.hasTreasure = false;
 	}
 
 	/**
@@ -54,10 +94,10 @@ public class MapNode {
 	 */
 	public MapNode(ETerrain terrain, boolean hasCastle, boolean hasTreasure, boolean hasMe, boolean hasEnemy) {
 		this(terrain, hasCastle);
-		this.hasTreasure = hasTreasure;
 		this.hasMe = hasMe;
 		this.hasEnemy = hasEnemy;
 	}
+
 	
 }
 

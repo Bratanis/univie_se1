@@ -3,6 +3,8 @@ package client.model.pathfinder;
 import java.io.*;
 import java.util.*;
 
+import messagesbase.messagesfromclient.EMove;
+
 /**
  * 
  */

@@ -1,7 +1,11 @@
 package client.model.pathfinder;
 
-import Model.GameMap.Coordinates;
+import client.model.GameProgress;
+import client.model.gamemap.mapelements.Coordinates;
+import client.model.gamemap.mapelements.MapNode;
+import messagesbase.messagesfromclient.EMove;
 
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.*;
 
@@ -10,47 +14,26 @@ import java.util.*;
  */
 public class PathFinder {
 
-	/**
-	 * Default constructor
-	 */
-	public PathFinder() {
-	}
 
 	/**
-	 * 
+	 * Attributes
 	 */
-	private NavigationState currentNavigationState = searchMyTerritoryState;
-
-	/**
-	 * 
-	 */
+	private NavigationState currentNavigationState ;
 	private NavigationState searchMyTerritoryState;
-
-	/**
-	 * 
-	 */
 	private NavigationState goToEnemyTerritoryState;
-
-	/**
-	 * 
-	 */
 	private NavigationState searchEnemyTerritoryState;
-
-	/**
-	 * 
-	 */
 	private Queue<EMove> movesQueue;
-
-	/**
-	 * 
-	 */
 	private PropertyChangeListener gameProgressListener;
 
 	/**
 	 * @param gameProgress GameProgress
 	 */
-	public PathFinder(void gameProgress GameProgress) {
-		// TODO implement here
+	public PathFinder(GameProgress gameProgress) {
+		this.searchMyTerritoryState = new SearchHalfMapState();
+		this.goToEnemyTerritoryState = new GoToEnemyTerritoryState();
+		this.searchEnemyTerritoryState = new SearchHalfMapState();
+		this.currentNavigationState = searchMyTerritoryState;
+		this.movesQueue = new LinkedList();
 	}
 
 	/**
@@ -61,12 +44,6 @@ public class PathFinder {
 		return null;
 	}
 
-	/**
-	 * 
-	 */
-	private void reevaluateGameState() {
-		// TODO implement here
-	}
 
 	/**
 	 * @return
@@ -81,7 +58,12 @@ public class PathFinder {
 	 * @param currentCoord
 	 */
 	public void determineNextMoves(HashMap<Coordinates, MapNode> surroundings, Coordinates currentCoord) {
-		// TODO implement here
+		currentNavigationState.reevaluateCurrentState();
+	}
+	
+	public void nextNavigationState() {
+	
+	}
 	}
 
 }
