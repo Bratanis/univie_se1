@@ -115,5 +115,9 @@ public class GameProgress {
 		else
 			return false;
 	}
+	
+	public boolean treasureCollected() {
+		return treasureCollected;
+	}
 
 }

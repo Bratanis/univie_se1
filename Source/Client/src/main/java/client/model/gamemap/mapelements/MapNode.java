@@ -17,6 +17,9 @@ public class MapNode {
 	private boolean hasTreasure;
 	private ETerrain terrain;
 	
+	private boolean nearTreasure;
+	private boolean nearCastle;
+	
 	
 	public ETerrain getTerrain() {
 		return terrain;
@@ -73,6 +76,8 @@ public class MapNode {
 		this.hasMe = false;
 		this.hasEnemy = false;
 		this.hasTreasure = false;
+		this.nearTreasure = false;
+		this.nearCastle = false;
 	}
 
 	/**
@@ -98,6 +103,21 @@ public class MapNode {
 		this.hasEnemy = hasEnemy;
 	}
 
+	public boolean isNearTreasure() {
+		return nearTreasure;
+	}
+
+	public void setNearTreasure(boolean nearTreasure) {
+		this.nearTreasure = nearTreasure;
+	}
+
+	public boolean isNearCastle() {
+		return nearCastle;
+	}
+
+	public void setNearCastle(boolean nearCastle) {
+		this.nearCastle = nearCastle;
+	}
 	
 }
 

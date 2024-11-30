@@ -95,9 +95,31 @@ public abstract class GameMap {
 	 * @param centre 
 	 * @return
 	 */
-	public HashMap<Coordinates, MapNode> getFieldsAround(Coordinates centre) {
-		// TODO implement here
-		return null;
+	public Map<Coordinates, MapNode> getFieldsAround(Coordinates centre) {
+
+		Map<Coordinates, MapNode> surroundings = new HashMap<>();
+
+		//left
+		Coordinates coordToTheLeft = centre.getCoordinatesToThe(EMove.Left);
+		MapNode leftMapNode = this.getNodeAt(coordToTheLeft);
+		surroundings.put(coordToTheLeft, leftMapNode);
+
+		//right
+		Coordinates coordToTheRight = centre.getCoordinatesToThe(EMove.Right);
+		MapNode rightMapNode = this.getNodeAt(coordToTheRight);
+		surroundings.put(coordToTheRight, rightMapNode);
+
+		//top
+		Coordinates coordToTheTop = centre.getCoordinatesToThe(EMove.Up);
+		MapNode topMapNode = this.getNodeAt(coordToTheTop);
+		surroundings.put(coordToTheTop, topMapNode);
+	
+		//bottom
+		Coordinates coordToTheBottom = centre.getCoordinatesToThe(EMove.Down);
+		MapNode bottomMapNode = this.getNodeAt(coordToTheBottom);
+		surroundings.put(coordToTheBottom, bottomMapNode);
+
+		return surroundings;
 	}
 	
 	public ETerrain getTerrainAt (Coordinates targetCoordinates) {

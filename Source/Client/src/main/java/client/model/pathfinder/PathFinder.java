@@ -10,7 +10,8 @@ import java.io.*;
 import java.util.*;
 
 /**
- * 
+ * Using State pattern here is more appropriate than Strategy, because the transitions from one state to the other
+ * are deterministic, and the different states accomplish different goals.
  */
 public class PathFinder {
 
@@ -18,52 +19,51 @@ public class PathFinder {
 	/**
 	 * Attributes
 	 */
-	private NavigationState currentNavigationState ;
-	private NavigationState searchMyTerritoryState;
-	private NavigationState goToEnemyTerritoryState;
-	private NavigationState searchEnemyTerritoryState;
-	private Queue<EMove> movesQueue;
-	private PropertyChangeListener gameProgressListener;
+	private NavigationState currentNavigationState;
+	private List<NavigationState> unusedStates;
+	private Queue<EMove> queuedMoves;
 
 	/**
 	 * @param gameProgress GameProgress
 	 */
 	public PathFinder(GameProgress gameProgress) {
-		this.searchMyTerritoryState = new SearchHalfMapState();
-		this.goToEnemyTerritoryState = new GoToEnemyTerritoryState();
-		this.searchEnemyTerritoryState = new SearchHalfMapState();
-		this.currentNavigationState = searchMyTerritoryState;
-		this.movesQueue = new LinkedList();
+		
+		this.queuedMoves = new LinkedList<>();
+		
+		this.unusedStates = new ArrayList<>();
+
+		NavigationState searchMyTerritoryState = new SearchHalfMapState(gameProgress);
+		unusedStates.add(searchMyTerritoryState);
+		NavigationState goToEnemyTerritoryState = new GoToEnemyTerritoryState(gameProgress);
+		unusedStates.add(goToEnemyTerritoryState);
+		NavigationState searchEnemyTerritoryState = new SearchHalfMapState(gameProgress);
+		unusedStates.add(searchEnemyTerritoryState);
+
+		this.currentNavigationState = unusedStates.removeFirst();
 	}
-
-	/**
-	 * @return
-	 */
-	public EMove getNextMove() {
-		// TODO implement here
-		return null;
-	}
-
-
-	/**
-	 * @return
-	 */
+	
 	public boolean noPendingMoves() {
-		// TODO implement here
-		return false;
+		return queuedMoves.isEmpty();
 	}
+
+
 
 	/**
 	 * @param surroundings 
 	 * @param currentCoord
 	 */
-	public void determineNextMoves(HashMap<Coordinates, MapNode> surroundings, Coordinates currentCoord) {
-		currentNavigationState.reevaluateCurrentState();
+	public void loadNextMoves(Map<Coordinates, MapNode> surroundings, Coordinates currentCoord) {
+		reevaluateCurrentState();
+		Collection <EMove> naviagtionMoves = currentNavigationState.determineNextMoves(surroundings);
+		this.queuedMoves.addAll(naviagtionMoves);
 	}
 	
-	public void nextNavigationState() {
+	public EMove getNextMove() {
+		return queuedMoves.remove();
+	}
 	
+	private void reevaluateCurrentState() {
+		if (currentNavigationState.goalComplete())
+			this.currentNavigationState = unusedStates.removeFirst();
 	}
-	}
-
 }

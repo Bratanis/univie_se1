@@ -22,7 +22,12 @@ import messagesbase.messagesfromserver.GameState;
  * 
  */
 public class ServerToClientDataConverter {
+
 	private Coordinates myCurrentCoordinates = new Coordinates();
+	
+	private Coordinates myTreasureCoordinates = new Coordinates();
+	private Coordinates firstCastleCoordinates = new Coordinates(); // Here we don't differentiate between my castle or the enemy
+	private Coordinates secondCastleCoordinates = new Coordinates();// castle, we pin them both
 
 	/**
 	 * Default constructor
@@ -69,14 +74,20 @@ public class ServerToClientDataConverter {
 	private GameMap convertToLocalGameMap(FullMap serverMap) {
 
 		HashMap<Coordinates, MapNode> localMapFields = getLocalMapFields(serverMap);
+		
+		GameMap result;
 
 		if (localMapFields.containsKey(SquareGameMap.LAST_COORDINATES)) {
-			return new SquareGameMap(localMapFields);
+			result = new SquareGameMap(localMapFields);
 		} else if (localMapFields.containsKey(LongGameMap.LAST_COORDINATES)) {
-			return new LongGameMap(localMapFields);
+			result = new LongGameMap(localMapFields);
 		} else {
 			throw new IllegalConversionException("gameState does not contain a square or rectangular map; serverMap nodes: " + serverMap.getMapNodes());
 		}
+	
+		markFieldsSurroundingKeyPositions(result);
+		
+		return result;
 	}
 	
 	private HashMap<Coordinates, MapNode> getLocalMapFields(FullMap serverMap) {
@@ -91,11 +102,13 @@ public class ServerToClientDataConverter {
 				
 			fields.put(fieldCoordinates, fieldMapNode);
 		}
+		
+		
 
 		return fields;
 	}
 	
-	// Has side effects: pins my position while iterating through the elements (not optimal, but easy and efficient)
+	// Has side effects: pins key positions while iterating through the elements (not optimal, but easy and efficient)
 	private MapNode getLocalMapNode(FullMapNode sMapNode) {
 
 		boolean hasTreasure = (sMapNode.getTreasureState() == ETreasureState.MyTreasureIsPresent);
@@ -113,7 +126,28 @@ public class ServerToClientDataConverter {
 		if (hasMe)
 			pinMyPosition(sMapNode);
 		
+		if(hasTreasure)
+			pinTreasurePosition(sMapNode);
+		
+		if(hasCastle)
+			pinCastlePositions(sMapNode);
+		
 		return localNode;
+	}
+
+	private void pinCastlePositions(FullMapNode sMapNode) {
+		int myX = sMapNode.getX();
+		int myY = sMapNode.getY();
+		if (!firstCastleCoordinates.isValid())
+			this.firstCastleCoordinates = new Coordinates (myX, myY);
+		else if (!secondCastleCoordinates.isValid())
+			this.secondCastleCoordinates = new Coordinates (myX, myY);
+	}
+
+	private void pinTreasurePosition(FullMapNode sMapNode) {
+		int myX = sMapNode.getX();
+		int myY = sMapNode.getY();
+		this.myTreasureCoordinates = new Coordinates (myX, myY);
 	}
 
 	// Helper function to pin my position for later
@@ -123,4 +157,30 @@ public class ServerToClientDataConverter {
 		this.myCurrentCoordinates = new Coordinates (myX, myY);
 	}
 	
+	private void markFieldsSurroundingKeyPositions (GameMap map) {
+		if (myTreasureCoordinates.isValid()) {
+			Map<Coordinates, MapNode> fieldsAroundTreasure = map.getFieldsAround(myTreasureCoordinates);
+			fieldsAroundTreasure.forEach((coordinates, mapNode) -> {
+				mapNode.setNearTreasure(true);
+			});
+		}
+		
+		if (firstCastleCoordinates.isValid()) {
+			Map<Coordinates, MapNode> fieldsAroundFirstCastle = map.getFieldsAround(firstCastleCoordinates);
+			fieldsAroundFirstCastle.forEach((coordinates, mapNode) -> {
+				mapNode.setNearCastle(true);
+			});
+		}
+		
+		if (secondCastleCoordinates.isValid()) {
+			Map<Coordinates, MapNode> fieldsAroundSecondCastle = map.getFieldsAround(secondCastleCoordinates);
+			fieldsAroundSecondCastle.forEach((coordinates, mapNode) -> {
+				mapNode.setNearCastle(true);
+			});
+		}
+	}
 }
+
+
+
+

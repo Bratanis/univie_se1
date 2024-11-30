@@ -2,12 +2,14 @@ package client.model;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Map;
 
 import client.model.gamemap.ClientHalfMap;
 import client.model.gamemap.GameMap;
 import client.model.gamemap.creation.MapGenerator;
 import client.model.gamemap.creation.MapValidator;
 import client.model.gamemap.mapelements.Coordinates;
+import client.model.gamemap.mapelements.MapNode;
 import client.model.pathfinder.PathFinder;
 import client.network.servercompatlayer.ModelDataEnvelope;
 import messagesbase.messagesfromclient.EMove;
@@ -111,14 +113,13 @@ public class GameModel {
 		}
 		return pathFinder.getNextMove();
 	}
-
-	/**
-	 * 
-	 */
+	
 	private void loadNextMoves() {
 		Coordinates myCurrentCoordinates = gameProgress.getCurrentCoordinates();
-		pathFinder.determineNextMoves(gameMap.getFieldsAround(myCurrentCoordinates), myCurrentCoordinates);
+		Map<Coordinates, MapNode> surroundings = gameMap.getFieldsAround(myCurrentCoordinates);
+		pathFinder.loadNextMoves(surroundings, myCurrentCoordinates);
 	}
+
 
 	/**
 	 * @param listener
