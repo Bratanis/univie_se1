@@ -38,7 +38,6 @@ public class GameController {
 			theNetwork.registerClient();
 		}
 		theView.setUpListeners(theModel);
-		//theModel.generateInitialHalfMap();
 	}
 	
 
@@ -62,6 +61,7 @@ public class GameController {
 		while (!theModel.gameIsOver()) {
 			theNetwork.busyWaitForMyTurn();
 			EMove nextMove = theModel.getNextMove();
+			//System.out.println("MY NEXT MOVE: " + nextMove); // FOR DEBUGGING
 			theNetwork.sendMove(nextMove);
 			ModelDataEnvelope serverResponse = theNetwork.getModelData();
 			theModel.updateGameModel(serverResponse);

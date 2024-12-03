@@ -10,7 +10,7 @@
    </appender>
 
    <!-- We can set the logging behaviour for specific packages, e.g. package "client" and it's sub-packages -->
-   <logger name="client" level="DEBUG"/>
+   <logger name="client" level="OFF"/>
 
    <!-- We can even control the logging behaviour for other libaries thanks to SLF4J -->
    <!-- The logger configurations below significantly reduces the very chatty output of webflux -->

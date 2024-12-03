@@ -12,6 +12,7 @@ import messagesbase.UniquePlayerIdentifier;
 import messagesbase.messagesfromclient.EMove;
 import messagesbase.messagesfromclient.ERequestState;
 import messagesbase.messagesfromclient.PlayerHalfMap;
+import messagesbase.messagesfromclient.PlayerMove;
 import messagesbase.messagesfromclient.PlayerRegistration;
 import messagesbase.messagesfromserver.EPlayerGameState;
 import messagesbase.messagesfromserver.FullMap;
@@ -177,8 +178,8 @@ public class ClientNetwork {
 
 		} else if ((cachedGameState != null) && (requestResult.getData().get().getGameStateId().equals(cachedGameState.getGameStateId()))) {
 			//logger.warn("Attempting to update the cached GameState returned the old GameState. Client is sending requests too rapidly!");
-			delayRequest();
-			updateCachedGameState();
+//			delayRequest();
+//			updateCachedGameState();
 		} else {
 			//logger.debug("Received valid GameState!");
 			cachedGameState = requestResult.getData().get();
@@ -196,13 +197,17 @@ public class ClientNetwork {
 		 if (playerState.getState()  == EPlayerGameState.MustAct) {
 			return true;
 		} else {
-			//logger.warn("askIfMyTurn determined playerState = " + playerState);
+			if (playerState.getState() == EPlayerGameState.Lost) {
+				logger.error("player Lost due to a broken rule!");
+			}
+//			logger.debug("askIfMyTurn determined playerState = " + playerState);
 			return false;
 		}
 	}
 
 	private PlayerState getMyPlayerState() {
 
+		updateCachedGameState();
 		Set<PlayerState> players = cachedGameState.getPlayers();
 
 		for (PlayerState playerState : players) {
@@ -238,8 +243,10 @@ public class ClientNetwork {
 	 */
 	public void sendMove(EMove moveDir) {
 		
-		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.POST).uri("/" + currentGameID + "/moves")
-				.body(BodyInserters.fromValue(moveDir)) 
+		PlayerMove moveToBeSent = PlayerMove.of(myPlayerID, moveDir);
+		
+		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.POST).uri("/" + currentGameID.getUniqueGameID() + "/moves")
+				.body(BodyInserters.fromValue(moveToBeSent)) 
 				.retrieve().bodyToMono(ResponseEnvelope.class);
 		ResponseEnvelope<UniquePlayerIdentifier> resMovePost = webAccess.block();
 		
@@ -252,11 +259,12 @@ public class ClientNetwork {
 	 * 
 	 */
 	public void busyWaitForMyTurn() {
-
+//		if (getMyPlayerState().getState() == EPlayerGameState.Lost)
+//			throw new RuntimeException("Client unexpectedly lost (due to a broken rule)!");
 		boolean isMyTurn = false;
 
-		while (!isMyTurn) {
-
+		while (!isMyTurn ) {
+//			logger.debug("Still waiting for my turn...");
 			isMyTurn = askIfMyTurn();
 
 		}
@@ -267,7 +275,7 @@ public class ClientNetwork {
 	 */
 	private void delayRequest() {
 		try {
-			Thread.sleep(400);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

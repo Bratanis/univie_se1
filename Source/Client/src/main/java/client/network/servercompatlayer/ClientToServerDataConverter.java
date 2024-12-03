@@ -4,6 +4,7 @@ import client.customexceptions.IllegalConversionException;
 import client.model.gamemap.ClientHalfMap;
 import client.model.gamemap.GameMap;
 import client.model.gamemap.mapelements.Coordinates;
+import client.model.gamemap.mapelements.MapNode;
 import messagesbase.UniquePlayerIdentifier;
 import messagesbase.messagesfromclient.ETerrain;
 import messagesbase.messagesfromclient.PlayerHalfMap;
@@ -32,15 +33,14 @@ public class ClientToServerDataConverter {
 
 		if (localMap.getClass() != ClientHalfMap.class) {
 			throw new IllegalConversionException(
-					"You need to input a local GameMap with type HALFMAP in order to get a server-readable PlayerHalfMap");
+					"You need to input a local ClientHalfMap in order to get a server-readable PlayerHalfMap");
 		}
 
 		Coordinates localMapLastCoord = localMap.getLastCoordinates();
-		Coordinates castleCoord = localMap.getMyStartingCoord();
 		for (int x = 0; x <= localMapLastCoord.getX(); x++) {
 			for (int y = 0; y <= localMapLastCoord.getY(); y++) {
-				Coordinates target = new Coordinates(x, y);
-				phmNodes.add(getPlayerHalfMapNode(target, localMap.getTerrainAt(target), castleCoord));
+				Coordinates fieldCoordinates = new Coordinates(x, y);
+				phmNodes.add(getPlayerHalfMapNode(fieldCoordinates, localMap.getNodeAt(fieldCoordinates)));
 			}
 		}
 		assert (phmNodes.size() == 50);
@@ -48,9 +48,9 @@ public class ClientToServerDataConverter {
 	}
 
 	
-	public static PlayerHalfMapNode getPlayerHalfMapNode(Coordinates nodeCoordinates, ETerrain terrain, Coordinates castleCoord) throws IllegalConversionException {
+	public static PlayerHalfMapNode getPlayerHalfMapNode(Coordinates fieldCoordinates, MapNode fieldNode) throws IllegalConversionException {
 
-		return new PlayerHalfMapNode(nodeCoordinates.getX(), nodeCoordinates.getY(), nodeCoordinates.equals(castleCoord) , terrain);
+		return new PlayerHalfMapNode(fieldCoordinates.getX(), fieldCoordinates.getY(), fieldNode.hasCastle() , fieldNode.getTerrain());
 	}
 
 

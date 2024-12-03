@@ -40,18 +40,11 @@ public class GameModel {
 	 */
 	public GameModel() {
 		this.logger = LoggerFactory.getLogger(GameModel.class);
-		//this.hasValidMap = false;
 		this.gameMap = generateValidGameMap(); 
 		this.gameProgress = new GameProgress(); // Initialize with an (empty) default game progress
-		this.pathFinder = new PathFinder(gameProgress);
-	//	this.support = new PropertyChangeSupport(this);
+		this.pathFinder = PathFinder.getUndifinedInstance();
 	}
 	
-	//public void generateInitialHalfMap() {
-		//GameMap validClientHalfMap = generateValidGameMap();
-		//updateOrSetGameMap(validClientHalfMap);
-		//this.hasValidMap = true;
-	//}
 
 	/**
 	 * @return
@@ -62,7 +55,7 @@ public class GameModel {
 		ClientHalfMap testHalfMap = generator.offerHalfMap();
 
 		while (!validator.mapIsValid(testHalfMap)) {
-			logger.info("Generated an invalid map. Retrying...");
+//			logger.info("Generated an invalid map. Retrying...");
 			testHalfMap = generator.offerHalfMap();
 		}
 
@@ -78,36 +71,37 @@ public class GameModel {
 	
 	public void updateGameModel(ModelDataEnvelope gameData) {
 		logger.debug("Model received new game data: " + gameData);
+		gameProgress.updateGameProgress(gameData.getGameProgress());
 
-		// Handle the map update
-		//GameMap oldGameMap = this.gameMap;
-		updateOrSetGameMap(gameData.getMapForClient());
-		//support.firePropertyChange("gameMap", oldGameMap, this.gameMap);
-
-		// Handle the game progress update
-		//GameProgress oldGameProgress = this.gameProgress;
-		this.gameProgress.updateGameProgress(gameData.getGameProgress());
-		logger.debug("New position according to gameProgress: " + gameProgress.getCurrentCoordinates());
-		//support.firePropertyChange("gameProgress", oldGameProgress, this.gameProgress);
+		GameMap newMap = gameData.getMapForClient();
+		if (this.gameMap.getClass() == ClientHalfMap.class) { // Will set the current half map to the new map,
+			setInitialFullMap(newMap);
+		} else {
+			this.gameMap.updateMapFields(newMap);  		  // or just update the fields if we already have a full map
+		}
+//		logger.debug("New position according to gameProgress: " + gameProgress.getCurrentCoordinates());
 	}
 
 	/**
 	 * @param newMap
 	 */
-	private void updateOrSetGameMap(GameMap newMap) {
-		logger.debug("Attempting to update the client game map with: " + newMap);
-		if (this.gameMap.getClass() == ClientHalfMap.class) { // Will set the current half map to the new map, or just update the fields if we already have a full map
+	private void setInitialFullMap(GameMap newMap) {
+//		logger.debug("Attempting to update the client game map with: " + newMap);
 			newMap.setSupport(this.gameMap.getSupport());
-			this.gameMap = newMap;
-		} else {
-			this.gameMap.updateMapFields(newMap);
-		}
+			gameMap = newMap;
+			gameMap.determineTerritories(gameProgress.getCurrentCoordinates()); // after setting the full map for the first time,
+																				// determine which territories belong to whom
+			this.pathFinder = new PathFinder(gameProgress, gameMap.getMyTerritory(), gameMap.getEnemyTerritory());
 	}
+	
+	
+	
 
 	/**
 	 * @return
 	 */
 	public EMove getNextMove() {
+		assert (pathFinder.isDefined());
 		if (pathFinder.noPendingMoves()) {
 			loadNextMoves();
 		}

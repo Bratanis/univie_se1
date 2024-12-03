@@ -2,7 +2,9 @@ package client.model.gamemap;
 
 import java.util.*;
 
+import client.customexceptions.MapNavigationException;
 import client.model.gamemap.mapelements.Coordinates;
+import client.model.gamemap.mapelements.ETerritory;
 import client.model.gamemap.mapelements.MapNode;
 import messagesbase.messagesfromclient.EMove;
 
@@ -38,6 +40,22 @@ public class SquareGameMap extends GameMap {
 	 */
 	public EMove findEnemyDirection() {
 		return null;
+	}
+
+	@Override
+	public void determineTerritories(Coordinates startingPosition) {
+		ETerritory topSide = ETerritory.TopLeftSide;
+		ETerritory bottomSide = ETerritory.BottomSide;
+		if (topSide.contains(startingPosition)) {
+			myTerritory = topSide;
+			enemyTerritory = bottomSide;
+		} else if (bottomSide.contains(startingPosition)) {
+			myTerritory = bottomSide;
+			enemyTerritory = topSide;
+		} else 
+			throw new MapNavigationException ("Could not determine the territories of the players!");
+			
+		
 	}
 
 }

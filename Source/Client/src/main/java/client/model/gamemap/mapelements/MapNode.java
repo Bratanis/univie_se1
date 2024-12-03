@@ -1,5 +1,7 @@
 package client.model.gamemap.mapelements;
 
+import java.util.Objects;
+
 import messagesbase.messagesfromclient.ETerrain;
 
 /**
@@ -11,10 +13,10 @@ public class MapNode {
 	 * Attributes: 
 	 */
 	
-	private boolean hasMe;
-	private boolean hasEnemy;
 	private boolean hasCastle;
 	private boolean hasTreasure;
+	private boolean hasMe;
+	private boolean hasEnemy;
 	private ETerrain terrain;
 	
 	private boolean nearTreasure;
@@ -118,6 +120,24 @@ public class MapNode {
 	public void setNearCastle(boolean nearCastle) {
 		this.nearCastle = nearCastle;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+	    if (this == obj)
+	        return true;
+	    if (obj == null || getClass() != obj.getClass())
+	        return false;
+	    MapNode other = (MapNode) obj;
+	    return hasMe == other.hasMe &&
+	           hasCastle == other.hasCastle &&
+	           hasTreasure == other.hasTreasure &&
+	           terrain.equals(other.terrain);
+	}
+	@Override
+	public int hashCode() {
+	    return Objects.hash(hasMe, hasCastle, hasTreasure, terrain);
+	}
+
 	
 }
 

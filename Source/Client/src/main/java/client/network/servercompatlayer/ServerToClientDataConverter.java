@@ -3,6 +3,9 @@ package client.network.servercompatlayer;
 import java.io.*;
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import client.customexceptions.IllegalConversionException;
 import client.model.GameProgress;
 import client.model.gamemap.GameMap;
@@ -22,6 +25,8 @@ import messagesbase.messagesfromserver.GameState;
  * 
  */
 public class ServerToClientDataConverter {
+	
+	Logger logger = LoggerFactory.getLogger(getClass());
 
 	private Coordinates myCurrentCoordinates = new Coordinates();
 	
@@ -46,8 +51,12 @@ public class ServerToClientDataConverter {
 		GameMap newGameMap = convertToLocalGameMap(serverMap);
 		
 		GameProgress newGameProgress = determineGameProgress(newGameMap, collectedTreasure, myWinOrLoss); 
+	
+		ModelDataEnvelope res = new ModelDataEnvelope(newGameMap, newGameProgress);
 		
-		return new ModelDataEnvelope(newGameMap, newGameProgress);
+		logger.debug("new ModelDataEnvelope: " + res);
+		
+		return res;
 	}
 	
 	private GameProgress determineGameProgress (GameMap newGameMap, boolean collectedTreasure, EPlayerGameState myWinOrLoss) {
@@ -121,7 +130,7 @@ public class ServerToClientDataConverter {
 			hasEnemy = true;
 		}
 
-		MapNode localNode = new MapNode(sMapNode.getTerrain(), hasTreasure, hasCastle, hasMe, hasEnemy);
+		MapNode localNode = new MapNode(sMapNode.getTerrain(), hasCastle, hasTreasure, hasMe, hasEnemy);
 		
 		if (hasMe)
 			pinMyPosition(sMapNode);
@@ -138,10 +147,12 @@ public class ServerToClientDataConverter {
 	private void pinCastlePositions(FullMapNode sMapNode) {
 		int myX = sMapNode.getX();
 		int myY = sMapNode.getY();
-		if (!firstCastleCoordinates.isValid())
-			this.firstCastleCoordinates = new Coordinates (myX, myY);
-		else if (!secondCastleCoordinates.isValid())
-			this.secondCastleCoordinates = new Coordinates (myX, myY);
+		Coordinates someCastleCoord = new Coordinates (myX, myY);
+		if (!firstCastleCoordinates.isValid()) {
+			logger.debug("First castle at: " + someCastleCoord);			
+			this.firstCastleCoordinates = someCastleCoord;
+		} else if (!secondCastleCoordinates.isValid())
+			this.secondCastleCoordinates = someCastleCoord;
 	}
 
 	private void pinTreasurePosition(FullMapNode sMapNode) {

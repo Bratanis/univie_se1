@@ -37,6 +37,8 @@ public class MapValidator {
 			logger.info("Map edges have too much water!");
 		return (noIslands && edgesOk); 
 	}
+	
+	
 
 	/**
 	 * Map can have max 2 water on the short sides and max 4 water on the long sides
@@ -121,17 +123,16 @@ public class MapValidator {
 	 * The idea is that we will create a bucket of checked grass/mountain (walkable)
 	 * fields. The function will check the first walkable field and toss it into the
 	 * bucket. After that it will be recursively called for all the walkable
-	 * neighbours of the element that was last put in the bucket. This method is
-	 * similar to Dijkstra method for pathfinding.
+	 * neighbours of the element that was last put in the bucket. 
 	 */
 
-	private static boolean hasNoIslands(ClientHalfMap gameMap) {
+	private boolean hasNoIslands(ClientHalfMap gameMap) {
 
 		Set<Coordinates> visited = new LinkedHashSet<Coordinates>();
 
 		// Start with a field that we are certain is grass and check every field
 		// connected to it recursively
-		checkNeighbours(gameMap.getMyStartingCoord(), visited, gameMap);
+		checkNeighbours(getSomeGrassNode(gameMap), visited, gameMap);
 
 		// If there are walkable fields in the map that haven't been added to the set,
 		// that mean that there
@@ -139,12 +140,26 @@ public class MapValidator {
 		return fieldsCanBeVisited(gameMap, visited);
 
 	}
+	
+	private Coordinates getSomeGrassNode(ClientHalfMap testMap){
+		int testX = 0;
+		int testY = 0;
+		Coordinates testCoordinates = new Coordinates (testX, testY);
+		while (testMap.getTerrainAt(testCoordinates) != ETerrain.Grass) {
+			if (testX < ClientHalfMap.LAST_COORDINATES.getX())
+				testCoordinates = new Coordinates (testX++, testY);
+			else if (testY < ClientHalfMap.LAST_COORDINATES.getY())
+				testCoordinates = new Coordinates (testX, testY++);
+			else throw new IllegalStateException ("map validator couldn't find any grass nodes on the map!");
+		}
+		return testCoordinates;
+	}
 
 	/**
 	 * Helper function that compares the walkable fields in the gameMap to the ones
 	 * in the "visited" set
 	 */
-	private static boolean fieldsCanBeVisited(ClientHalfMap gameMap, Set<Coordinates> visited) {
+	private boolean fieldsCanBeVisited(ClientHalfMap gameMap, Set<Coordinates> visited) {
 		// Get the dimensions of the map
 		int lastX = gameMap.getLastCoordinates().getX();
 		int lastY = gameMap.getLastCoordinates().getY();
@@ -170,7 +185,7 @@ public class MapValidator {
 	/**
 	 * Helper function that recursively adds all connected walkable tiles to a list
 	 */
-	private static void checkNeighbours(Coordinates targetPos, Set<Coordinates> visited, ClientHalfMap gameMap) {
+	private void checkNeighbours(Coordinates targetPos, Set<Coordinates> visited, ClientHalfMap gameMap) {
 
 		// Check if the target node is already in the visited set
 		if (!visited.contains(targetPos)) {

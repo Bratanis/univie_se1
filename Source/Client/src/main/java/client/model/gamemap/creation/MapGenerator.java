@@ -176,7 +176,6 @@ public class MapGenerator {
 
 	private Coordinates getRandomMapNodeLocation(HashMap<Coordinates, MapNode> mapFields) {
 		Random r = new Random();
-		// Loop every time treasure couldn't be set
 		int position = r.nextInt(mapFields.size());
 
 		Iterator<Map.Entry<Coordinates, MapNode>> iterator = mapFields.entrySet().iterator();

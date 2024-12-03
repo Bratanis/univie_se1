@@ -90,12 +90,15 @@ public class CLIView {
 	 */
 	private void printGameMap(GameMap map) {
 		System.out.println("__________________________________________________________________\n");
+		
+		printXIndexRow(map.getLastCoordinates().getX());
 
 		String printableMapRow = "";
 
 		int numOfRows =  map.getLastCoordinates().getY();
 		
 		for (int currentY = 0; currentY <= numOfRows; ++currentY) {
+			printableMapRow += " [Y" + currentY + "] ";
 			printableMapRow += getFormattedLine (currentY, map);
 		}
 
@@ -114,7 +117,7 @@ public class CLIView {
 		int elementsPerLine =  map.getLastCoordinates().getX(); 
 		
 		String formattedMapLine = "";
-		
+	
 //    			logger.info("mapFields: " + gameMap.toString());
 
 		for (int xCol = 0; xCol <= elementsPerLine; ++xCol) {
@@ -127,6 +130,14 @@ public class CLIView {
 		}
 
 		return formattedMapLine.concat("\n");
+	}
+
+	private void printXIndexRow(int lastMapX) {
+	    String xIndexRow = " [X:] ";
+	    for (int xCol = 0; xCol <= lastMapX; ++xCol) {
+	        xIndexRow += " [" + String.format("%02d", xCol) + "] "; // suggested by ChatGPT
+	    }
+	    System.out.println(xIndexRow);
 	}
 
 

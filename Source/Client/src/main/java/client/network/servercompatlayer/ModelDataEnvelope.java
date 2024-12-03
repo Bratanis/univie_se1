@@ -37,5 +37,8 @@ public class ModelDataEnvelope {
 		return gameProgress;
 	}
 
+	public String toString() {
+		return ("{ " + gameProgress.toString() + mapForClient.toString() + " }");
+	}
 
 }

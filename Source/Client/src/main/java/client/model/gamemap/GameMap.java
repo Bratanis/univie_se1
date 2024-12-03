@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import client.customexceptions.IllegalConversionException;
 import client.model.gamemap.mapelements.Coordinates;
+import client.model.gamemap.mapelements.ETerritory;
 import client.model.gamemap.mapelements.MapNode;
 import messagesbase.messagesfromclient.EMove;
 import messagesbase.messagesfromclient.ETerrain;
@@ -22,10 +23,14 @@ public abstract class GameMap {
 	 * Attributes:
 	 */
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	protected HashMap<Coordinates, MapNode> mapFields;
-	private Coordinates myStartingCoord;
+	
+	protected ETerritory myTerritory = ETerritory.None;		// Not useable for the abstract parent class
+	protected ETerritory enemyTerritory = ETerritory.None; // Will make sense for the actual implementing classes (parent class abstract anyway
 
 	private PropertyChangeSupport support;
+
 
 	
 	/**
@@ -34,7 +39,6 @@ public abstract class GameMap {
 	 */
 	public GameMap(HashMap<Coordinates, MapNode> mapFields, Coordinates startingCoordinates) {
 		this.mapFields = mapFields;
-		this.myStartingCoord = startingCoordinates;
 		this.support = new PropertyChangeSupport(this);
 	}
 	
@@ -46,13 +50,6 @@ public abstract class GameMap {
 		this (new HashMap<>());
 	}
 
-	public Coordinates getMyStartingCoord() {
-		return myStartingCoord;
-	}
-
-	public void setMyStartingCoord(Coordinates myStartingCoord) {
-		this.myStartingCoord = myStartingCoord;
-	}
 
 	/**
 	 * @Override
@@ -64,10 +61,16 @@ public abstract class GameMap {
 				"Trying to set a map of type: " + newMap.getClass() + " where " + this.getClass() + " is expected!");
 		}
 		HashMap<Coordinates, MapNode> oldFields = this.mapFields;
-		this.mapFields = new HashMap<>(newMap.mapFields);
+		if(oldFields.equals(newMap.mapFields))
+			logger.info("No new map yet...");
+		else {
+			this.mapFields = new HashMap<>(newMap.mapFields);
 		
-		support.firePropertyChange("updateMapFields", oldFields, this.mapFields);	}
+			support.firePropertyChange("updateMapFields", oldFields, this);	// Maybe send only the map fields instead!
+		}
+	}
 
+	public abstract void determineTerritories(Coordinates startingPosition);
 
 	/**
 	 * @param listener
@@ -99,28 +102,37 @@ public abstract class GameMap {
 
 		Map<Coordinates, MapNode> surroundings = new HashMap<>();
 
+		
 		//left
-		Coordinates coordToTheLeft = centre.getCoordinatesToThe(EMove.Left);
-		MapNode leftMapNode = this.getNodeAt(coordToTheLeft);
-		surroundings.put(coordToTheLeft, leftMapNode);
-
+		addFieldToThe(surroundings, centre, EMove.Left);
+		
 		//right
-		Coordinates coordToTheRight = centre.getCoordinatesToThe(EMove.Right);
-		MapNode rightMapNode = this.getNodeAt(coordToTheRight);
-		surroundings.put(coordToTheRight, rightMapNode);
-
+		addFieldToThe(surroundings, centre, EMove.Right);
+		
 		//top
-		Coordinates coordToTheTop = centre.getCoordinatesToThe(EMove.Up);
-		MapNode topMapNode = this.getNodeAt(coordToTheTop);
-		surroundings.put(coordToTheTop, topMapNode);
+		addFieldToThe(surroundings, centre, EMove.Up);
 	
 		//bottom
-		Coordinates coordToTheBottom = centre.getCoordinatesToThe(EMove.Down);
-		MapNode bottomMapNode = this.getNodeAt(coordToTheBottom);
-		surroundings.put(coordToTheBottom, bottomMapNode);
+		addFieldToThe(surroundings, centre, EMove.Down);
 
+		assert (!surroundings.isEmpty());
+		
 		return surroundings;
 	}
+	
+	/**
+	 * Helper function for getFieldsAround() method
+	 * @param surroundings
+	 * @param direction
+	 */
+	private void addFieldToThe(Map<Coordinates, MapNode> surroundings, Coordinates centre, EMove direction) {
+		Coordinates coordToTheLeft = centre.getCoordinatesToThe(direction);
+		MapNode mapNode = this.getNodeAt(coordToTheLeft);
+		if (mapNode != null)
+			surroundings.put(coordToTheLeft, mapNode);
+	}
+	
+	
 	
 	public ETerrain getTerrainAt (Coordinates targetCoordinates) {
 		MapNode targetNode = getNodeAt(targetCoordinates);
@@ -135,6 +147,14 @@ public abstract class GameMap {
 
 	public MapNode getNodeAt(Coordinates targetCoordinates) {
 		return  mapFields.get(targetCoordinates);
+	}
+
+	public ETerritory getEnemyTerritory() {
+		return enemyTerritory;
+	}
+
+	public ETerritory getMyTerritory() {
+		return myTerritory;
 	}
 
 }

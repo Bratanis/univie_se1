@@ -119,5 +119,14 @@ public class GameProgress {
 	public boolean treasureCollected() {
 		return treasureCollected;
 	}
+	public String toString() {
+		return ("{GameProgress: "
+				+ "{treasureCollected: " + treasureCollected + "}, "
+				+ "{wonGame: " + wonGame + "}, "
+				+ "{lostGame: " + lostGame + "}, "
+				+ "{currentRound: " + currentRound + "}, "
+				+ "{currentCoordinates " + currentCoordinates + "}"
+				+"}");
+	}
 
 }

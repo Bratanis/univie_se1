@@ -5,6 +5,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.spi.LoggerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -29,7 +31,8 @@ import reactor.core.publisher.Mono;
 public class MainClient {
 
 	public static void main(String[] args) throws UserInputException {
-
+		
+        
 		try {
 			//String gameMode = args[0]; Not used anywhere in my implementation
 	
@@ -50,10 +53,12 @@ public class MainClient {
 			GameController theController = new GameController(theNetwork, theModel, theView); // Dependency injection for modularity 
 			theController.initializeGame(); // Register the client
 			theController.initialMapExchange(); // Send the locally generated half map and get server full map
-			//theController.startGame(); // Start sending moves and updating the local data until game is finished
+			theController.startGame(); // Start sending moves and updating the local data until game is finished
 			
 		} catch (UserInputException e) {
 			e.printStackTrace();
 		}
 	}
+	
+	
 }

@@ -51,9 +51,9 @@ public class Coordinates {
 		case EMove.Right:
 			return new Coordinates(X + 1, Y);
 		case EMove.Up:
-			return  new Coordinates(X, Y + 1);
-		case EMove.Down:
 			return  new Coordinates(X, Y - 1);
+		case EMove.Down:
+			return  new Coordinates(X, Y + 1);
 		default:
 			throw new IllegalArgumentException("Invalid direction");
 		}
@@ -100,6 +100,10 @@ public class Coordinates {
 	public boolean isValid() {
 		// it is NOT the default value of Coordinates
 		return !this.equals(new Coordinates());
+	}
+	
+	public boolean smallerOrEqualTo(Coordinates other) {
+		return (this.X <= other.getX() && this.Y <= other.getY());
 	}
 }
 

@@ -2,7 +2,12 @@ package client.model.pathfinder;
 
 import client.model.GameProgress;
 import client.model.gamemap.mapelements.Coordinates;
+import client.model.gamemap.mapelements.ETerritory;
 import client.model.gamemap.mapelements.MapNode;
+import client.model.pathfinder.navigation.GoToEnemyTerritoryState;
+import client.model.pathfinder.navigation.NavigationState;
+import client.model.pathfinder.navigation.SearchEnemyTerritoryForCastle;
+import client.model.pathfinder.navigation.SearchMyTerritoryForTreasure;
 import messagesbase.messagesfromclient.EMove;
 
 import java.beans.PropertyChangeListener;
@@ -19,27 +24,41 @@ public class PathFinder {
 	/**
 	 * Attributes
 	 */
+	private boolean isDefined = false;
 	private NavigationState currentNavigationState;
 	private List<NavigationState> unusedStates;
 	private Queue<EMove> queuedMoves;
+	
+	private PathFinder() {
+		
+	}
+	
+	public static PathFinder getUndifinedInstance() {
+		return new PathFinder();
+	}
+	
+	public boolean isDefined() {
+		return this.isDefined;
+	}
 
 	/**
 	 * @param gameProgress GameProgress
 	 */
-	public PathFinder(GameProgress gameProgress) {
+	public PathFinder(GameProgress gameProgress, ETerritory myTerritory, ETerritory enemyTerritory) {
 		
 		this.queuedMoves = new LinkedList<>();
 		
 		this.unusedStates = new ArrayList<>();
 
-		NavigationState searchMyTerritoryState = new SearchHalfMapState(gameProgress);
+		NavigationState searchMyTerritoryState = new SearchMyTerritoryForTreasure(gameProgress, myTerritory);
 		unusedStates.add(searchMyTerritoryState);
-		NavigationState goToEnemyTerritoryState = new GoToEnemyTerritoryState(gameProgress);
+		NavigationState goToEnemyTerritoryState = new GoToEnemyTerritoryState(gameProgress, myTerritory, enemyTerritory);
 		unusedStates.add(goToEnemyTerritoryState);
-		NavigationState searchEnemyTerritoryState = new SearchHalfMapState(gameProgress);
+		NavigationState searchEnemyTerritoryState = new SearchEnemyTerritoryForCastle(gameProgress, enemyTerritory);
 		unusedStates.add(searchEnemyTerritoryState);
 
 		this.currentNavigationState = unusedStates.removeFirst();
+		isDefined = true;
 	}
 	
 	public boolean noPendingMoves() {
@@ -62,8 +81,10 @@ public class PathFinder {
 		return queuedMoves.remove();
 	}
 	
-	private void reevaluateCurrentState() {
-		if (currentNavigationState.goalComplete())
+	private void reevaluateCurrentState() throws NoSuchElementException{
+		if (currentNavigationState.goalComplete()) {
 			this.currentNavigationState = unusedStates.removeFirst();
+	
+		}
 	}
 }
