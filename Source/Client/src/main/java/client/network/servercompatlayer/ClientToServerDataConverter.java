@@ -24,11 +24,12 @@ public class ClientToServerDataConverter {
 	}
 
 	/**
-	 * @param myPlayerID 
-	 * @param localMap 
+	 * @param myPlayerID
+	 * @param localMap
 	 * @return
 	 */
-	public PlayerHalfMap getPlayerHalfMap(UniquePlayerIdentifier myPlayerID, GameMap localMap)  throws IllegalConversionException {
+	public PlayerHalfMap getPlayerHalfMap(UniquePlayerIdentifier myPlayerID, GameMap localMap)
+			throws IllegalConversionException {
 		Collection<PlayerHalfMapNode> phmNodes = new HashSet<PlayerHalfMapNode>();
 
 		if (localMap.getClass() != ClientHalfMap.class) {
@@ -47,11 +48,11 @@ public class ClientToServerDataConverter {
 		return new PlayerHalfMap(myPlayerID, phmNodes);
 	}
 
-	
-	public static PlayerHalfMapNode getPlayerHalfMapNode(Coordinates fieldCoordinates, MapNode fieldNode) throws IllegalConversionException {
+	public static PlayerHalfMapNode getPlayerHalfMapNode(Coordinates fieldCoordinates, MapNode fieldNode)
+			throws IllegalConversionException {
 
-		return new PlayerHalfMapNode(fieldCoordinates.getX(), fieldCoordinates.getY(), fieldNode.hasCastle() , fieldNode.getTerrain());
+		return new PlayerHalfMapNode(fieldCoordinates.getX(), fieldCoordinates.getY(), fieldNode.hasCastle(),
+				fieldNode.getTerrain());
 	}
-
 
 }

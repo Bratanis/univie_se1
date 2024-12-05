@@ -18,21 +18,20 @@ import messagesbase.messagesfromclient.ETerrain;
  * 
  */
 public abstract class GameMap {
-	
+
 	/**
 	 * Attributes:
 	 */
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
+
 	protected HashMap<Coordinates, MapNode> mapFields;
-	
-	protected ETerritory myTerritory = ETerritory.None;		// Not useable for the abstract parent class
-	protected ETerritory enemyTerritory = ETerritory.None; // Will make sense for the actual implementing classes (parent class abstract anyway
+
+	protected ETerritory myTerritory = ETerritory.None; // Not useable for the abstract parent class
+	protected ETerritory enemyTerritory = ETerritory.None; // Will make sense for the actual implementing classes
+															// (parent class abstract anyway
 
 	private PropertyChangeSupport support;
 
-
-	
 	/**
 	 * @param mapFields
 	 * @param startingCoordinates
@@ -41,32 +40,31 @@ public abstract class GameMap {
 		this.mapFields = mapFields;
 		this.support = new PropertyChangeSupport(this);
 	}
-	
+
 	public GameMap(HashMap<Coordinates, MapNode> mapFields) {
-		this (mapFields, new Coordinates(-1, -1));
-	}
-	
-	public GameMap() {
-		this (new HashMap<>());
+		this(mapFields, new Coordinates(-1, -1));
 	}
 
+	public GameMap() {
+		this(new HashMap<>());
+	}
 
 	/**
 	 * @Override
 	 * @param newMap
 	 */
 	public void updateMapFields(GameMap newMap) {
-		if (this.getClass() != newMap.getClass()) { 
-			throw new IllegalConversionException(
-				"Trying to set a map of type: " + newMap.getClass() + " where " + this.getClass() + " is expected!");
+		if (this.getClass() != newMap.getClass()) {
+			throw new IllegalConversionException("Trying to set a map of type: " + newMap.getClass() + " where "
+					+ this.getClass() + " is expected!");
 		}
 		HashMap<Coordinates, MapNode> oldFields = this.mapFields;
-		if(oldFields.equals(newMap.mapFields))
+		if (oldFields.equals(newMap.mapFields))
 			logger.info("No new map yet...");
 		else {
 			this.mapFields = new HashMap<>(newMap.mapFields);
-		
-			support.firePropertyChange("updateMapFields", oldFields, this);	// Maybe send only the map fields instead!
+
+			support.firePropertyChange("updateMapFields", oldFields, this); // Maybe send only the map fields instead!
 		}
 	}
 
@@ -75,53 +73,54 @@ public abstract class GameMap {
 	/**
 	 * @param listener
 	 */
-	public void addListener(PropertyChangeListener listener ) {
+	public void addListener(PropertyChangeListener listener) {
 		support.addPropertyChangeListener(listener);
 	}
-	
+
 	public PropertyChangeSupport getSupport() {
 		return this.support;
 	}
 
-	public void setSupport(PropertyChangeSupport newSupport ) {
+	public void setSupport(PropertyChangeSupport newSupport) {
 		this.support = newSupport;
 		support.firePropertyChange("A full map from the server has been set!", null, this);
 	}
+
 	/**
 	 * @return
 	 */
 	public abstract EMove findEnemyDirection();
-	
+
 	public abstract Coordinates getLastCoordinates();
 
 	/**
-	 * @param centre 
+	 * @param centre
 	 * @return
 	 */
 	public Map<Coordinates, MapNode> getFieldsAround(Coordinates centre) {
 
 		Map<Coordinates, MapNode> surroundings = new HashMap<>();
 
-		
-		//left
+		// left
 		addFieldToThe(surroundings, centre, EMove.Left);
-		
-		//right
+
+		// right
 		addFieldToThe(surroundings, centre, EMove.Right);
-		
-		//top
+
+		// top
 		addFieldToThe(surroundings, centre, EMove.Up);
-	
-		//bottom
+
+		// bottom
 		addFieldToThe(surroundings, centre, EMove.Down);
 
 		assert (!surroundings.isEmpty());
-		
+
 		return surroundings;
 	}
-	
+
 	/**
 	 * Helper function for getFieldsAround() method
+	 * 
 	 * @param surroundings
 	 * @param direction
 	 */
@@ -131,22 +130,21 @@ public abstract class GameMap {
 		if (mapNode != null)
 			surroundings.put(coordToTheLeft, mapNode);
 	}
-	
-	
-	
-	public ETerrain getTerrainAt (Coordinates targetCoordinates) {
+
+	public ETerrain getTerrainAt(Coordinates targetCoordinates) {
 		MapNode targetNode = getNodeAt(targetCoordinates);
 		if (targetNode != null)
 			return targetNode.getTerrain();
 		else {
-			//logger.warn("Tried to get terrain of coordinates that are out of scope! (returning water)");
-			return ETerrain.Water; // If the Coordinates are out of the scope of the map, 
+			// logger.warn("Tried to get terrain of coordinates that are out of scope!
+			// (returning water)");
+			return ETerrain.Water; // If the Coordinates are out of the scope of the map,
 		}
-									//return a field you cannot walk on (imaginary water border around the map).
+		// return a field you cannot walk on (imaginary water border around the map).
 	}
 
 	public MapNode getNodeAt(Coordinates targetCoordinates) {
-		return  mapFields.get(targetCoordinates);
+		return mapFields.get(targetCoordinates);
 	}
 
 	public ETerritory getEnemyTerritory() {

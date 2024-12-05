@@ -12,26 +12,25 @@ import messagesbase.messagesfromclient.EMove;
  * 
  */
 public class LongGameMap extends GameMap {
-	
-	public static final Coordinates LAST_COORDINATES = new Coordinates (19, 4);
+
+	public static final Coordinates LAST_COORDINATES = new Coordinates(19, 4);
 
 	public Coordinates getLastCoordinates() {
-		assert(this.mapFields.containsKey(LAST_COORDINATES));
-		return LAST_COORDINATES; 
+		assert (this.mapFields.containsKey(LAST_COORDINATES));
+		return LAST_COORDINATES;
 	}
-	
+
 	/**
 	 * @param mapFields
 	 * @param startingCoordinates
 	 */
 	public LongGameMap(HashMap<Coordinates, MapNode> mapFields, Coordinates startingCoordinates) {
-		super (mapFields, startingCoordinates);
-	}
-	
-	public LongGameMap(HashMap<Coordinates, MapNode> mapFields) {
-		super (mapFields);
+		super(mapFields, startingCoordinates);
 	}
 
+	public LongGameMap(HashMap<Coordinates, MapNode> mapFields) {
+		super(mapFields);
+	}
 
 	/**
 	 * @Override
@@ -51,8 +50,8 @@ public class LongGameMap extends GameMap {
 		} else if (rightSide.contains(startingPosition)) {
 			myTerritory = rightSide;
 			enemyTerritory = leftSide;
-		} else 
-			throw new MapNavigationException ("Could not determine the territories of the players!");
+		} else
+			throw new MapNavigationException("Could not determine the territories of the players!");
 	}
 
 }

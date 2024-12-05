@@ -5,7 +5,6 @@ import java.beans.PropertyChangeSupport;
 
 import client.model.gamemap.mapelements.Coordinates;
 
-
 /**
  * 
  */
@@ -34,8 +33,8 @@ public class GameProgress {
 	public GameProgress() {
 		this(false, false, false, new Coordinates()); // neutral value to avoid null
 	}
-	
-	public GameProgress (boolean treasureCollected, boolean wonGame, boolean lostGame, Coordinates currentCoordinates) {
+
+	public GameProgress(boolean treasureCollected, boolean wonGame, boolean lostGame, Coordinates currentCoordinates) {
 		this.treasureCollected = treasureCollected;
 		this.wonGame = wonGame;
 		this.lostGame = lostGame;
@@ -68,30 +67,29 @@ public class GameProgress {
 			support.firePropertyChange("lostGame", oldValue, this.lostGame);
 		}
 
-		// My current coordinates are not relevant for the view and will not fire a property change event!
+		// My current coordinates are not relevant for the view and will not fire a
+		// property change event!
 		if (!this.currentCoordinates.equals(newProgress.currentCoordinates)) {
-			//Coordinates oldValue = this.currentCoordinates;
+			// Coordinates oldValue = this.currentCoordinates;
 			this.currentCoordinates = newProgress.currentCoordinates;
-			//support.firePropertyChange("currentCoordinates", oldValue, this.currentCoordinates);
+			// support.firePropertyChange("currentCoordinates", oldValue,
+			// this.currentCoordinates);
 		}
 
 		int oldRound = this.currentRound;
 		this.currentRound++;
 		support.firePropertyChange("currentRound", oldRound, this.currentRound);
 	}
-		
-	public boolean equals (GameProgress other) {
-	    if (this == other) 
-	    	return true;
-	    if (other == null)
-	    	return false;
-	    return (
-	    		this.treasureCollected == other.treasureCollected && 
-	    		this.wonGame == other.wonGame && 
-	    		this.lostGame == other.lostGame &&
-	    		this.currentCoordinates == other.currentCoordinates);
+
+	public boolean equals(GameProgress other) {
+		if (this == other)
+			return true;
+		if (other == null)
+			return false;
+		return (this.treasureCollected == other.treasureCollected && this.wonGame == other.wonGame
+				&& this.lostGame == other.lostGame && this.currentCoordinates == other.currentCoordinates);
 	}
-	
+
 	/**
 	 * @param listener
 	 */
@@ -110,23 +108,17 @@ public class GameProgress {
 	 * @return
 	 */
 	public boolean gameIsOver() {
-		if (wonGame || lostGame)
-			return true;
-		else
-			return false;
+		return (wonGame || lostGame);
 	}
-	
+
 	public boolean treasureCollected() {
 		return treasureCollected;
 	}
+
 	public String toString() {
-		return ("{GameProgress: "
-				+ "{treasureCollected: " + treasureCollected + "}, "
-				+ "{wonGame: " + wonGame + "}, "
-				+ "{lostGame: " + lostGame + "}, "
-				+ "{currentRound: " + currentRound + "}, "
-				+ "{currentCoordinates " + currentCoordinates + "}"
-				+"}");
+		return ("{GameProgress: " + "{treasureCollected: " + treasureCollected + "}, " + "{wonGame: " + wonGame + "}, "
+				+ "{lostGame: " + lostGame + "}, " + "{currentRound: " + currentRound + "}, " + "{currentCoordinates "
+				+ currentCoordinates + "}" + "}");
 	}
 
 }

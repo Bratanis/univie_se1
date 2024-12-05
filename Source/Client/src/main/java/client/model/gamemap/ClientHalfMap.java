@@ -12,8 +12,8 @@ import messagesbase.messagesfromclient.EMove;
  * 
  */
 public class ClientHalfMap extends GameMap {
-	
-	public static final Coordinates LAST_COORDINATES = new Coordinates (9, 4);
+
+	public static final Coordinates LAST_COORDINATES = new Coordinates(9, 4);
 
 	/**
 	 * Default constructor
@@ -28,6 +28,7 @@ public class ClientHalfMap extends GameMap {
 
 	/**
 	 * Liskov!!!
+	 * 
 	 * @return
 	 */
 	public EMove findEnemyDirection() {
@@ -36,8 +37,8 @@ public class ClientHalfMap extends GameMap {
 
 	@Override
 	public Coordinates getLastCoordinates() {
-		assert(this.mapFields.containsKey(LAST_COORDINATES));
-		return LAST_COORDINATES; 
+		assert (this.mapFields.containsKey(LAST_COORDINATES));
+		return LAST_COORDINATES;
 	}
 
 	// Unlikely to be used
@@ -45,7 +46,7 @@ public class ClientHalfMap extends GameMap {
 	public void determineTerritories(Coordinates startingPosition) {
 		myTerritory = ETerritory.TopLeftSide;
 		enemyTerritory = ETerritory.None;
-		
+
 	}
-														
+
 }

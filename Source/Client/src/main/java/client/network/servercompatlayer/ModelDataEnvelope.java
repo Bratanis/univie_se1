@@ -13,25 +13,22 @@ public class ModelDataEnvelope {
 
 	/**
 	 * Attributes:
-	 */	
+	 */
 	private GameMap mapForClient;
 	private GameProgress gameProgress;
 
-	
 	/**
 	 * Methods:
 	 */
-	
+
 	public ModelDataEnvelope(GameMap mapForClient, GameProgress gameProgress) {
 		this.mapForClient = mapForClient;
 		this.gameProgress = gameProgress;
 	}
 
-
 	public GameMap getMapForClient() {
 		return mapForClient;
 	}
-
 
 	public GameProgress getGameProgress() {
 		return gameProgress;

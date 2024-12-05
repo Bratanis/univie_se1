@@ -1,5 +1,16 @@
 package client.network;
 
+import java.net.URL;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import client.customexceptions.ServerCommunicationException;
 import client.customexceptions.UserInputException;
 import client.model.gamemap.GameMap;
@@ -20,29 +31,16 @@ import messagesbase.messagesfromserver.GameState;
 import messagesbase.messagesfromserver.PlayerState;
 import reactor.core.publisher.Mono;
 
-import java.io.*;
-import java.net.URL;
-import java.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-
-
-
 /**
  * This class was largely "recycled" from my SS24 submission!
  */
 public class ClientNetwork {
 
-/**
- *  Attributes:
- */
+	/**
+	 * Attributes:
+	 */
 	private boolean registeredToAGame;
-	
+
 	private WebClient baseWebClient;
 
 	private UniqueGameIdentifier currentGameID;
@@ -55,17 +53,16 @@ public class ClientNetwork {
 
 	private ClientToServerDataConverter toServer;
 
-	
 	private Logger logger;
 
-/**
- * Methods:	
- */
+	/**
+	 * Methods:
+	 */
 
 	/**
-	 * @param serverBaseUrl 
+	 * @param serverBaseUrl
 	 * @param currentGameID
-	 * @throws UserInputException if no UniqueGameIdentifier is provided 
+	 * @throws UserInputException if no UniqueGameIdentifier is provided
 	 */
 	public ClientNetwork(URL serverBaseUrl, UniqueGameIdentifier currentGameID) {
 
@@ -73,50 +70,43 @@ public class ClientNetwork {
 		this.toServer = new ClientToServerDataConverter();
 		this.fromServer = new ServerToClientDataConverter();
 
-		// From example main method	
+		// From example main method
 		this.baseWebClient = WebClient.builder().baseUrl(serverBaseUrl + "/games")
-				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE) 
-				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE) 
-				.build();
+				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
+				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE).build();
 
 		if (currentGameID != null) {
 			this.currentGameID = currentGameID;
 		} else {
-			logger.error("User is likely trying to start a game without a GameID!"); // Ctor should not throw an exception, 
-																//but one will occur at "reuestPlayerID()" if the gameID is invalid
+			logger.error("User is likely trying to start a game without a GameID!"); // Ctor should not throw an
+																						// exception,
+			// but one will occur at "reuestPlayerID()" if the gameID is invalid
 			this.currentGameID = UniqueGameIdentifier.of("");
 		}
 
-
 	}
-	
+
 	public boolean isRegistered() {
 		return this.registeredToAGame;
 	}
 
-	
 	public void registerClient() throws UserInputException {
 		this.myPlayerID = requestPlayerID();
 		if (myPlayerID == null)
-			throw new RuntimeException ("Client registration failed: could not retrieve the playerID from server");
-		this.registeredToAGame=true;
+			throw new RuntimeException("Client registration failed: could not retrieve the playerID from server");
+		this.registeredToAGame = true;
 	}
-	
+
 	/**
-	 * @return 
-	 * @throws UserInputException 
+	 * @return
+	 * @throws UserInputException
 	 * 
 	 */
 	private UniquePlayerIdentifier requestPlayerID() throws UserInputException {
-		PlayerRegistration playerReg = new PlayerRegistration(
-				"Ivan",
-				"Bratanov",
-				"bratanovi02");
-		Mono<ResponseEnvelope> webAccess = baseWebClient
-				.method(HttpMethod.POST)
-				.uri("/" + currentGameID.getUniqueGameID() + "/players")
-				.body(BodyInserters.fromValue(playerReg)) 
-				.retrieve().bodyToMono(ResponseEnvelope.class); 
+		PlayerRegistration playerReg = new PlayerRegistration("Ivan", "Bratanov", "bratanovi02");
+		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.POST)
+				.uri("/" + currentGameID.getUniqueGameID() + "/players").body(BodyInserters.fromValue(playerReg))
+				.retrieve().bodyToMono(ResponseEnvelope.class);
 		ResponseEnvelope<UniquePlayerIdentifier> resultReg = webAccess.block();
 
 		if (resultReg.getState() == ERequestState.Error) {
@@ -125,7 +115,7 @@ public class ClientNetwork {
 					+ " Please make sure you enter the relevant gameId when running the client!");
 		} else {
 			UniquePlayerIdentifier uniqueID = resultReg.getData().get();
-			//logger.info("My Player ID: " + uniqueID.getUniquePlayerID());
+			// logger.info("My Player ID: " + uniqueID.getUniquePlayerID());
 			return uniqueID;
 		}
 	}
@@ -134,17 +124,15 @@ public class ClientNetwork {
 	 * @param localHalfMap
 	 */
 	public void sendLocalMapToServer(GameMap localHalfMap) {
-		
+
 		delayRequest();
-		
+
 		PlayerHalfMap playerHalfMap = toServer.getPlayerHalfMap(myPlayerID, localHalfMap);
-		
+
 		assert (playerHalfMap != null);
-		
-		Mono<ResponseEnvelope> webAccess = baseWebClient
-				.method(HttpMethod.POST)
-				.uri("/" + currentGameID.getUniqueGameID()  + "/halfmaps")
-				.body(BodyInserters.fromValue(playerHalfMap))
+
+		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.POST)
+				.uri("/" + currentGameID.getUniqueGameID() + "/halfmaps").body(BodyInserters.fromValue(playerHalfMap))
 				.retrieve().bodyToMono(ResponseEnvelope.class);
 
 		ResponseEnvelope<UniquePlayerIdentifier> resMapPost = webAccess.block();
@@ -157,17 +145,17 @@ public class ClientNetwork {
 		}
 	}
 
-
 	/**
 	 * Used for polling the server
 	 */
 	private void updateCachedGameState() {
-		
+
 //		logger.debug("retrieving the most recent GameState from the Server");
 		delayRequest();
-		
+
 		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.GET)
-				.uri("/" + currentGameID.getUniqueGameID() + "/states/" + myPlayerID.getUniquePlayerID()).retrieve().bodyToMono(ResponseEnvelope.class);
+				.uri("/" + currentGameID.getUniqueGameID() + "/states/" + myPlayerID.getUniquePlayerID()).retrieve()
+				.bodyToMono(ResponseEnvelope.class);
 		ResponseEnvelope<GameState> requestResult = webAccess.block();
 
 		if (requestResult.getState() == ERequestState.Error) {
@@ -176,12 +164,14 @@ public class ClientNetwork {
 		} else if (requestResult.getData() == null) {
 			logger.error("requestGameState received no data!");
 
-		} else if ((cachedGameState != null) && (requestResult.getData().get().getGameStateId().equals(cachedGameState.getGameStateId()))) {
-			//logger.warn("Attempting to update the cached GameState returned the old GameState. Client is sending requests too rapidly!");
+		} else if ((cachedGameState != null)
+				&& (requestResult.getData().get().getGameStateId().equals(cachedGameState.getGameStateId()))) {
+			// logger.warn("Attempting to update the cached GameState returned the old
+			// GameState. Client is sending requests too rapidly!");
 //			delayRequest();
 //			updateCachedGameState();
 		} else {
-			//logger.debug("Received valid GameState!");
+			// logger.debug("Received valid GameState!");
 			cachedGameState = requestResult.getData().get();
 		}
 	}
@@ -193,13 +183,13 @@ public class ClientNetwork {
 
 		updateCachedGameState();
 		PlayerState playerState = getMyPlayerState();
-		
-		 if (playerState.getState()  == EPlayerGameState.MustAct) {
+
+		if (playerState.getState() == EPlayerGameState.MustAct) {
 			return true;
 		} else {
-			if (playerState.getState() == EPlayerGameState.Lost) {
-				logger.error("player Lost due to a broken rule!");
-			}
+//			if (playerState.getState() == EPlayerGameState.Lost) {
+//				logger.error("player Lost due to a broken rule!");
+//			}
 //			logger.debug("askIfMyTurn determined playerState = " + playerState);
 			return false;
 		}
@@ -215,26 +205,26 @@ public class ClientNetwork {
 				return playerState;
 			}
 		}
-		throw new ServerCommunicationException("Couldn't retrieve my PlayerState from the cached GameState(= " + cachedGameState + ")");
+		throw new ServerCommunicationException(
+				"Couldn't retrieve my PlayerState from the cached GameState(= " + cachedGameState + ")");
 	}
-	
 
 	/**
 	 * @return
 	 */
 	public ModelDataEnvelope getModelData() {
-		
+
 		FullMap serverMap = new FullMap();
 
-		while (serverMap.isEmpty() || serverMap.getMapNodes().size() <= 50) { // Wait until the server sends the full map
+		while (serverMap.isEmpty() || serverMap.getMapNodes().size() <= 50) { // Wait until the server sends the full
+																				// map
 			updateCachedGameState();
 			serverMap = cachedGameState.getMap();
 		}
 		PlayerState myCurrentPlayerState = getMyPlayerState();
 
-		ModelDataEnvelope newModelDataEnvelope = fromServer.getModelDataEnvelope(cachedGameState.getMap(), 
-																				 myCurrentPlayerState.hasCollectedTreasure(),
-																				 myCurrentPlayerState.getState());
+		ModelDataEnvelope newModelDataEnvelope = fromServer.getModelDataEnvelope(cachedGameState.getMap(),
+				myCurrentPlayerState.hasCollectedTreasure(), myCurrentPlayerState.getState());
 		return newModelDataEnvelope;
 	}
 
@@ -242,15 +232,15 @@ public class ClientNetwork {
 	 * @param moveDir
 	 */
 	public void sendMove(EMove moveDir) {
-		
+
 		PlayerMove moveToBeSent = PlayerMove.of(myPlayerID, moveDir);
-		
-		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.POST).uri("/" + currentGameID.getUniqueGameID() + "/moves")
-				.body(BodyInserters.fromValue(moveToBeSent)) 
+
+		Mono<ResponseEnvelope> webAccess = baseWebClient.method(HttpMethod.POST)
+				.uri("/" + currentGameID.getUniqueGameID() + "/moves").body(BodyInserters.fromValue(moveToBeSent))
 				.retrieve().bodyToMono(ResponseEnvelope.class);
 		ResponseEnvelope<UniquePlayerIdentifier> resMovePost = webAccess.block();
-		
-		if(resMovePost.getState() == ERequestState.Error) {
+
+		if (resMovePost.getState() == ERequestState.Error) {
 			throw new ServerCommunicationException("Could not send EMove to Server!");
 		}
 	}
@@ -263,7 +253,7 @@ public class ClientNetwork {
 //			throw new RuntimeException("Client unexpectedly lost (due to a broken rule)!");
 		boolean isMyTurn = false;
 
-		while (!isMyTurn ) {
+		while (!isMyTurn) {
 //			logger.debug("Still waiting for my turn...");
 			isMyTurn = askIfMyTurn();
 
@@ -275,10 +265,10 @@ public class ClientNetwork {
 	 */
 	private void delayRequest() {
 		try {
-			Thread.sleep(500);
+			Thread.sleep(400);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 }

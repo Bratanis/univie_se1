@@ -1,15 +1,18 @@
 package client.model.gamemap.creation;
 
-import client.model.gamemap.ClientHalfMap;
-import client.model.gamemap.mapelements.Coordinates;
-import client.model.gamemap.mapelements.MapNode;
-import messagesbase.messagesfromclient.ETerrain;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import client.model.gamemap.ClientHalfMap;
+import client.model.gamemap.mapelements.Coordinates;
+import client.model.gamemap.mapelements.MapNode;
+import messagesbase.messagesfromclient.ETerrain;
 
 /**
  * 
@@ -19,15 +22,18 @@ public class MapGenerator {
 	/**
 	 * Attributes:
 	 */
-	
+
 	// Minimum requirements for the map
-	// private static final int MIN_GRASS_FIELDS = 24; // The generator will favor placing grass so this is unnecessary
-	private final int MIN_MOUNTAIN_FIELDS = 5;
+	// private static final int MIN_GRASS_FIELDS = 24; // The generator will favor
+	// placing grass so this is unnecessary
+	private final int MIN_MOUNTAIN_FIELDS = 15; // Should be 5 but more mountains means shorter games -> quicker
+												// debugging!
 	private final int MIN_WATER_FIELDS = 7;
 
 	private final int TOTAL_NUM_FIELDS = 50;
 
 	private Logger logger = LoggerFactory.getLogger(MapGenerator.class);;
+
 	/**
 	 * Default constructor
 	 */
@@ -56,8 +62,9 @@ public class MapGenerator {
 	 */
 	private HashMap<Coordinates, MapNode> initializeMapFields() {
 		HashMap<Coordinates, MapNode> mapFields = new HashMap<>();
-		
-		// CREATE A TerrainCountTracker CLASS THAT WILL TAKE THE CONSTANTS AND GENERATE 3 PARAMETERS (ACCESSIBLE VIA GETTERS)
+
+		// CREATE A TerrainCountTracker CLASS THAT WILL TAKE THE CONSTANTS AND GENERATE
+		// 3 PARAMETERS (ACCESSIBLE VIA GETTERS)
 
 		// Number of fields of each type. Grass is going to be the default, once the
 		// mountains and water has been set
@@ -70,7 +77,7 @@ public class MapGenerator {
 
 		// Populate array, considering the minimum num of field for each field type
 		Coordinates lastMapCoordinates = ClientHalfMap.LAST_COORDINATES;
-		
+
 		for (int X = 0; X <= lastMapCoordinates.getX(); ++X) {
 			for (int Y = 0; Y <= lastMapCoordinates.getY(); ++Y) {
 
@@ -86,27 +93,29 @@ public class MapGenerator {
 		assert (mapFields.size() == 50);
 		return mapFields;
 	}
-	
 
-	
 	/**
-	 *  Used to change update the number of fields remaining to be placed for each type. The numbers aren't decremented in the rollRandomType() method
-	 *  to avoid side effects.
+	 * Used to change update the number of fields remaining to be placed for each
+	 * type. The numbers aren't decremented in the rollRandomType() method to avoid
+	 * side effects.
+	 * 
 	 * @param terrain
 	 * @param mountainNum
 	 * @param waterNum
 	 * @param grassNum
 	 */
-	private  void adjustParameters(ETerrain terrain, AtomicInteger mountainNum, AtomicInteger waterNum, AtomicInteger grassNum) {
-	    if (terrain == ETerrain.Mountain) {
-	        mountainNum.decrementAndGet();
-	        //logger.debug("Mountain placed. Mountain fields left:" + mountainNum.get());				// Logs removed because they spam too much
-	    } else if (terrain ==ETerrain.Water) {
-	        waterNum.decrementAndGet();
-	        //logger.debug("Water placed. Water fields left:" + waterNum.get());
-	    } else {
-	        grassNum.decrementAndGet();
-	    }
+	private void adjustParameters(ETerrain terrain, AtomicInteger mountainNum, AtomicInteger waterNum,
+			AtomicInteger grassNum) {
+		if (terrain == ETerrain.Mountain) {
+			mountainNum.decrementAndGet();
+			// logger.debug("Mountain placed. Mountain fields left:" + mountainNum.get());
+			// // Logs removed because they spam too much
+		} else if (terrain == ETerrain.Water) {
+			waterNum.decrementAndGet();
+			// logger.debug("Water placed. Water fields left:" + waterNum.get());
+		} else {
+			grassNum.decrementAndGet();
+		}
 	}
 
 	/**
@@ -185,5 +194,4 @@ public class MapGenerator {
 		return (iterator.next()).getKey();
 	}
 
-	
 }

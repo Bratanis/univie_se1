@@ -1,7 +1,6 @@
 package client.model.pathfinder.navigation;
 
-import java.io.*;
-import java.util.*;
+import java.util.Map;
 
 import client.customexceptions.MapNavigationException;
 import client.model.GameProgress;
@@ -22,32 +21,30 @@ public class GoToEnemyTerritoryState extends NavigationState {
 		super(gameProgress);
 		this.enemyTerritory = enemyTerritory;
 		EMove enemyDirection = determineEnemyDir(myTerritory, enemyTerritory);
-		this.appraiser = new EnemyDirFieldAppraiser (visitedCoordinates, enemyDirection);
+		this.appraiser = new EnemyDirFieldAppraiser(visitedCoordinates, enemyDirection);
 	}
 
 	private EMove determineEnemyDir(ETerritory myTerritory, ETerritory enemyTerritory) {
-	       // Determine direction
-        if (myTerritory == ETerritory.TopLeftSide) {
-            if (enemyTerritory == ETerritory.BottomSide) {
-                return EMove.Down;
-            } else if (enemyTerritory == ETerritory.RightSide) {
-            	return EMove.Right;
-            }
-        } else if (enemyTerritory == ETerritory.TopLeftSide) {
-            if (myTerritory == ETerritory.BottomSide) {
-            	return EMove.Up;
-            } else if (myTerritory == ETerritory.RightSide) {
-            	return EMove.Left;
-            }
-        } 
-        	throw new MapNavigationException("Unexpected territory configuration: " 
-        										+ myTerritory + "; "
-        										+ enemyTerritory);
+		// Determine direction
+		if (myTerritory == ETerritory.TopLeftSide) {
+			if (enemyTerritory == ETerritory.BottomSide) {
+				return EMove.Down;
+			} else if (enemyTerritory == ETerritory.RightSide) {
+				return EMove.Right;
+			}
+		} else if (enemyTerritory == ETerritory.TopLeftSide) {
+			if (myTerritory == ETerritory.BottomSide) {
+				return EMove.Up;
+			} else if (myTerritory == ETerritory.RightSide) {
+				return EMove.Left;
+			}
+		}
+		throw new MapNavigationException("Unexpected territory configuration: " + myTerritory + "; " + enemyTerritory);
 	}
 
 	@Override
 	public boolean goalComplete() {
-		
+
 		return enemyTerritory.contains(gameProgress.getCurrentCoordinates());
 	}
 
@@ -55,7 +52,7 @@ public class GoToEnemyTerritoryState extends NavigationState {
 	@Override
 	protected void removeOutOfBoundsFields(Map<Coordinates, MapNode> fields) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

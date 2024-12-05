@@ -20,6 +20,4 @@ public class SearchEnemyTerritoryForCastle extends SearchHalfMapState {
 		return gameProgress.gameIsOver();
 	}
 
-	
-
 }

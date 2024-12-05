@@ -25,13 +25,14 @@ import messagesbase.messagesfromserver.GameState;
  * 
  */
 public class ServerToClientDataConverter {
-	
+
 	Logger logger = LoggerFactory.getLogger(getClass());
 
 	private Coordinates myCurrentCoordinates = new Coordinates();
-	
+
 	private Coordinates myTreasureCoordinates = new Coordinates();
-	private Coordinates firstCastleCoordinates = new Coordinates(); // Here we don't differentiate between my castle or the enemy
+	private Coordinates firstCastleCoordinates = new Coordinates(); // Here we don't differentiate between my castle or
+																	// the enemy
 	private Coordinates secondCastleCoordinates = new Coordinates();// castle, we pin them both
 
 	/**
@@ -46,44 +47,45 @@ public class ServerToClientDataConverter {
 	 * @param myWinOrLoss
 	 * @return
 	 */
-	public ModelDataEnvelope getModelDataEnvelope(FullMap serverMap, boolean collectedTreasure, EPlayerGameState myWinOrLoss) {
+	public ModelDataEnvelope getModelDataEnvelope(FullMap serverMap, boolean collectedTreasure,
+			EPlayerGameState myWinOrLoss) {
 
 		GameMap newGameMap = convertToLocalGameMap(serverMap);
-		
-		GameProgress newGameProgress = determineGameProgress(newGameMap, collectedTreasure, myWinOrLoss); 
-	
+
+		GameProgress newGameProgress = determineGameProgress(newGameMap, collectedTreasure, myWinOrLoss);
+
 		ModelDataEnvelope res = new ModelDataEnvelope(newGameMap, newGameProgress);
-		
+
 		logger.debug("new ModelDataEnvelope: " + res);
-		
+
 		return res;
 	}
-	
-	private GameProgress determineGameProgress (GameMap newGameMap, boolean collectedTreasure, EPlayerGameState myWinOrLoss) {
-	 
-		// First make sure you have pinned your current position while extracting the map data
+
+	private GameProgress determineGameProgress(GameMap newGameMap, boolean collectedTreasure,
+			EPlayerGameState myWinOrLoss) {
+
+		// First make sure you have pinned your current position while extracting the
+		// map data
 		assert (myCurrentCoordinates.equals(new Coordinates()));
-		
+
 		boolean wonGame;
 		boolean lostGame;
-		if (myWinOrLoss == EPlayerGameState.Won) 
+		if (myWinOrLoss == EPlayerGameState.Won)
 			wonGame = true;
-		else 
+		else
 			wonGame = false;
 		if (myWinOrLoss == EPlayerGameState.Lost)
 			lostGame = true;
 		else
 			lostGame = false;
-		
+
 		return new GameProgress(collectedTreasure, wonGame, lostGame, myCurrentCoordinates);
 	}
-	
-	
 
 	private GameMap convertToLocalGameMap(FullMap serverMap) {
 
 		HashMap<Coordinates, MapNode> localMapFields = getLocalMapFields(serverMap);
-		
+
 		GameMap result;
 
 		if (localMapFields.containsKey(SquareGameMap.LAST_COORDINATES)) {
@@ -91,14 +93,16 @@ public class ServerToClientDataConverter {
 		} else if (localMapFields.containsKey(LongGameMap.LAST_COORDINATES)) {
 			result = new LongGameMap(localMapFields);
 		} else {
-			throw new IllegalConversionException("gameState does not contain a square or rectangular map; serverMap nodes: " + serverMap.getMapNodes());
+			throw new IllegalConversionException(
+					"gameState does not contain a square or rectangular map; serverMap nodes: "
+							+ serverMap.getMapNodes());
 		}
-	
+
 		markFieldsSurroundingKeyPositions(result);
-		
+
 		return result;
 	}
-	
+
 	private HashMap<Coordinates, MapNode> getLocalMapFields(FullMap serverMap) {
 
 		HashMap<Coordinates, MapNode> fields = new HashMap<Coordinates, MapNode>();
@@ -108,48 +112,49 @@ public class ServerToClientDataConverter {
 			Coordinates fieldCoordinates = new Coordinates(serverMapNode.getX(), serverMapNode.getY());
 
 			MapNode fieldMapNode = getLocalMapNode(serverMapNode);
-				
+
 			fields.put(fieldCoordinates, fieldMapNode);
 		}
-		
-		
 
 		return fields;
 	}
-	
-	// Has side effects: pins key positions while iterating through the elements (not optimal, but easy and efficient)
+
+	// Has side effects: pins key positions while iterating through the elements
+	// (not optimal, but easy and efficient)
 	private MapNode getLocalMapNode(FullMapNode sMapNode) {
 
 		boolean hasTreasure = (sMapNode.getTreasureState() == ETreasureState.MyTreasureIsPresent);
-		boolean hasCastle = (sMapNode.getFortState() == EFortState.MyFortPresent || sMapNode.getFortState() == EFortState.EnemyFortPresent);;
+		boolean hasCastle = (sMapNode.getFortState() == EFortState.MyFortPresent
+				|| sMapNode.getFortState() == EFortState.EnemyFortPresent);
+		;
 		boolean hasMe = (sMapNode.getPlayerPositionState().equals(EPlayerPositionState.MyPlayerPosition));
 		boolean hasEnemy = (sMapNode.getPlayerPositionState().equals(EPlayerPositionState.EnemyPlayerPosition));
-		
+
 		if (sMapNode.getPlayerPositionState().equals(EPlayerPositionState.BothPlayerPosition)) {
 			hasMe = true;
 			hasEnemy = true;
 		}
 
 		MapNode localNode = new MapNode(sMapNode.getTerrain(), hasCastle, hasTreasure, hasMe, hasEnemy);
-		
+
 		if (hasMe)
 			pinMyPosition(sMapNode);
-		
-		if(hasTreasure)
+
+		if (hasTreasure)
 			pinTreasurePosition(sMapNode);
-		
-		if(hasCastle)
+
+		if (hasCastle)
 			pinCastlePositions(sMapNode);
-		
+
 		return localNode;
 	}
 
 	private void pinCastlePositions(FullMapNode sMapNode) {
 		int myX = sMapNode.getX();
 		int myY = sMapNode.getY();
-		Coordinates someCastleCoord = new Coordinates (myX, myY);
+		Coordinates someCastleCoord = new Coordinates(myX, myY);
 		if (!firstCastleCoordinates.isValid()) {
-			logger.debug("First castle at: " + someCastleCoord);			
+			logger.debug("First castle at: " + someCastleCoord);
 			this.firstCastleCoordinates = someCastleCoord;
 		} else if (!secondCastleCoordinates.isValid())
 			this.secondCastleCoordinates = someCastleCoord;
@@ -158,31 +163,31 @@ public class ServerToClientDataConverter {
 	private void pinTreasurePosition(FullMapNode sMapNode) {
 		int myX = sMapNode.getX();
 		int myY = sMapNode.getY();
-		this.myTreasureCoordinates = new Coordinates (myX, myY);
+		this.myTreasureCoordinates = new Coordinates(myX, myY);
 	}
 
 	// Helper function to pin my position for later
 	private void pinMyPosition(FullMapNode sMapNode) {
 		int myX = sMapNode.getX();
 		int myY = sMapNode.getY();
-		this.myCurrentCoordinates = new Coordinates (myX, myY);
+		this.myCurrentCoordinates = new Coordinates(myX, myY);
 	}
-	
-	private void markFieldsSurroundingKeyPositions (GameMap map) {
+
+	private void markFieldsSurroundingKeyPositions(GameMap map) {
 		if (myTreasureCoordinates.isValid()) {
 			Map<Coordinates, MapNode> fieldsAroundTreasure = map.getFieldsAround(myTreasureCoordinates);
 			fieldsAroundTreasure.forEach((coordinates, mapNode) -> {
 				mapNode.setNearTreasure(true);
 			});
 		}
-		
+
 		if (firstCastleCoordinates.isValid()) {
 			Map<Coordinates, MapNode> fieldsAroundFirstCastle = map.getFieldsAround(firstCastleCoordinates);
 			fieldsAroundFirstCastle.forEach((coordinates, mapNode) -> {
 				mapNode.setNearCastle(true);
 			});
 		}
-		
+
 		if (secondCastleCoordinates.isValid()) {
 			Map<Coordinates, MapNode> fieldsAroundSecondCastle = map.getFieldsAround(secondCastleCoordinates);
 			fieldsAroundSecondCastle.forEach((coordinates, mapNode) -> {
@@ -191,7 +196,3 @@ public class ServerToClientDataConverter {
 		}
 	}
 }
-
-
-
-
