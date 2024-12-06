@@ -32,7 +32,7 @@ public class MainClient {
 
 	public static void main(String[] args) throws UserInputException {
 		
-        
+       // TR http://swe1.wst.univie.ac.at:18235 GameID 
 		try {
 			//String gameMode = args[0]; Not used anywhere in my implementation
 	

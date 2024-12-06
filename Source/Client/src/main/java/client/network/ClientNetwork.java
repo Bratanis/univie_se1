@@ -198,7 +198,8 @@ public class ClientNetwork {
 			return true;
 		} else {
 			if (playerState.getState() == EPlayerGameState.Lost) {
-				logger.error("player Lost due to a broken rule!");
+				logger.error("player Lost! (due to a broken rule!)");
+				System.exit(0);
 			}
 //			logger.debug("askIfMyTurn determined playerState = " + playerState);
 			return false;
