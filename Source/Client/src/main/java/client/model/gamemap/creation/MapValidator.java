@@ -14,7 +14,7 @@ import messagesbase.messagesfromclient.ETerrain;
  * 
  */
 public class MapValidator {
-
+	
 	private final Logger logger;
 
 	/**
@@ -25,7 +25,7 @@ public class MapValidator {
 	}
 
 	/**
-	 * @param testMap
+	 * @param testMap 
 	 * @return
 	 */
 	public boolean mapIsValid(ClientHalfMap testMap) {
@@ -35,35 +35,37 @@ public class MapValidator {
 			logger.info("The map has islans");
 		if (!edgesOk)
 			logger.info("Map edges have too much water!");
-		return (noIslands && edgesOk);
+		return (noIslands && edgesOk); 
 	}
+	
+	
 
 	/**
 	 * Map can have max 2 water on the short sides and max 4 water on the long sides
-	 * 
 	 * @param gameMap
 	 * @return
 	 */
 	private boolean waterOnEdgesLeqHalf(ClientHalfMap gameMap) {
-
+		
 		return (checkTopAndBottomForWater(gameMap) && checkLeftAndRightForWater(gameMap));
 	}
 
+
 	// Helper function for waterOnEdgesLeqHalf
 	private boolean checkTopAndBottomForWater(ClientHalfMap gameMap) {
-
+		
 		int firstX = 0; // column
 		int lastX = gameMap.getLastCoordinates().getX();
 
 		int firstY = 0; // row
 		int lastY = gameMap.getLastCoordinates().getY();
-
+		
 		int waterCountTop = 0;
 		int waterCountBottom = 0;
 		for (int x = firstX; x <= lastX; ++x) {
 			Coordinates topTargetCoordinates = new Coordinates(x, firstY);
 			Coordinates bottomTargetCoordinates = new Coordinates(x, lastY);
-
+			
 			if (gameMap.getTerrainAt(topTargetCoordinates) == ETerrain.Water) {
 				++waterCountTop;
 			}
@@ -71,8 +73,8 @@ public class MapValidator {
 				++waterCountBottom;
 			}
 		}
-
-		int maxWaterOnSides = lastX / 2;
+	
+		int maxWaterOnSides = lastX/2;
 		if (waterCountTop >= maxWaterOnSides || waterCountBottom >= maxWaterOnSides) {
 			logger.debug("Water on the top side is: " + waterCountTop + " but should be <= " + maxWaterOnSides);
 			logger.debug("Water on the bottom side is: " + waterCountBottom + " but should be <= " + maxWaterOnSides);
@@ -81,23 +83,23 @@ public class MapValidator {
 			return true;
 		}
 	}
-
+	
 	// Helper function for waterOnEdgesLeqHalf
 	private boolean checkLeftAndRightForWater(ClientHalfMap gameMap) {
-
+		
 		int firstX = 0; // column
 		int lastX = gameMap.getLastCoordinates().getX();
 
 		int firstY = 0; // row
 		int lastY = gameMap.getLastCoordinates().getY();
-
+		
 		int waterCountLeft = 0;
 		int waterCountRight = 0;
-
+		
 		for (int y = firstY; y <= lastY; ++y) {
 			Coordinates leftTargetCoordinates = new Coordinates(firstX, y);
 			Coordinates rightTargetCoordinates = new Coordinates(lastX, y);
-
+			
 			if (gameMap.getTerrainAt(leftTargetCoordinates) == ETerrain.Water) {
 				++waterCountLeft;
 			}
@@ -105,8 +107,8 @@ public class MapValidator {
 				++waterCountRight;
 			}
 		}
-		int maxWaterOnSides = lastY / 2;
-		if (waterCountLeft >= maxWaterOnSides || waterCountRight >= lastY / 2 + 1) {
+		int maxWaterOnSides = lastY/2;
+		if (waterCountLeft >= maxWaterOnSides || waterCountRight >= lastY/2+1) {
 			logger.debug("Water on the left side is: " + waterCountLeft + " but should be <= " + maxWaterOnSides);
 			logger.debug("Water on the right side is: " + waterCountRight + " but should be <= " + maxWaterOnSides);
 			return false;
@@ -114,12 +116,14 @@ public class MapValidator {
 			return true;
 		}
 	}
-
+	
+	
+	
 	/*
 	 * The idea is that we will create a bucket of checked grass/mountain (walkable)
 	 * fields. The function will check the first walkable field and toss it into the
 	 * bucket. After that it will be recursively called for all the walkable
-	 * neighbours of the element that was last put in the bucket.
+	 * neighbours of the element that was last put in the bucket. 
 	 */
 
 	private boolean hasNoIslands(ClientHalfMap gameMap) {
@@ -136,18 +140,17 @@ public class MapValidator {
 		return fieldsCanBeVisited(gameMap, visited);
 
 	}
-
-	private Coordinates getSomeGrassNode(ClientHalfMap testMap) {
+	
+	private Coordinates getSomeGrassNode(ClientHalfMap testMap){
 		int testX = 0;
 		int testY = 0;
-		Coordinates testCoordinates = new Coordinates(testX, testY);
+		Coordinates testCoordinates = new Coordinates (testX, testY);
 		while (testMap.getTerrainAt(testCoordinates) != ETerrain.Grass) {
 			if (testX < ClientHalfMap.LAST_COORDINATES.getX())
-				testCoordinates = new Coordinates(testX++, testY);
+				testCoordinates = new Coordinates (testX++, testY);
 			else if (testY < ClientHalfMap.LAST_COORDINATES.getY())
-				testCoordinates = new Coordinates(testX, testY++);
-			else
-				throw new IllegalStateException("map validator couldn't find any grass nodes on the map!");
+				testCoordinates = new Coordinates (testX, testY++);
+			else throw new IllegalStateException ("map validator couldn't find any grass nodes on the map!");
 		}
 		return testCoordinates;
 	}
@@ -197,9 +200,9 @@ public class MapValidator {
 			surroundingPos.add(targetPos.getCoordinatesToThe(EMove.Down));
 
 			for (Coordinates c : surroundingPos) {
-
+				
 				if (c != null) {
-
+				
 					ETerrain targetTerrain = gameMap.getTerrainAt(c);
 
 					if (targetTerrain != ETerrain.Water) {
@@ -208,5 +211,5 @@ public class MapValidator {
 				}
 			}
 		}
-	}
+	}	
 }

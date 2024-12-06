@@ -4,7 +4,7 @@ import client.model.GameProgress;
 import client.model.gamemap.mapelements.ETerritory;
 import client.model.pathfinder.helpers.appraiser.TreasureSearchFieldAppraiser;
 
-public class SearchMyTerritoryForTreasure extends SearchHalfMapState {
+public class SearchMyTerritoryForTreasure extends SearchHalfMapState{
 
 	public SearchMyTerritoryForTreasure(GameProgress gameProgress, ETerritory targetTErritory) {
 		super(gameProgress, targetTErritory);

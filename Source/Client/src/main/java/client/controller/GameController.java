@@ -22,8 +22,8 @@ public class GameController {
 	private CLIView theView;
 
 	/**
-	 * @param network
-	 * @param model
+	 * @param network 
+	 * @param model 
 	 * @param view
 	 */
 	public GameController(ClientNetwork network, GameModel model, CLIView view) {
@@ -32,12 +32,14 @@ public class GameController {
 		this.theView = view;
 	}
 
-	public void initializeGame() throws UserInputException {
-		if (!theNetwork.isRegistered()) {
+
+	public void initializeGame() throws UserInputException{
+		if(!theNetwork.isRegistered()) {
 			theNetwork.registerClient();
 		}
 		theView.setUpListeners(theModel);
 	}
+	
 
 	/**
 	 * 
@@ -48,18 +50,18 @@ public class GameController {
 		theNetwork.sendLocalMapToServer(clientHalfMap);
 		ModelDataEnvelope newData = theNetwork.getModelData();
 		theModel.updateGameModel(newData);
-
+		
 	}
 
 	/**
-	 * Keep sending the next move determined by the pathfinder (inside the model)
-	 * and updating the data with the server response until the game is over
+	 * Keep sending the next move determined by the pathfinder (inside the model) and updating the data 
+	 * with the server response until the game is over 
 	 */
 	public void startGame() {
 		while (!theModel.gameIsOver()) {
 			theNetwork.busyWaitForMyTurn();
 			EMove nextMove = theModel.getNextMove();
-			// System.out.println("MY NEXT MOVE: " + nextMove); // FOR DEBUGGING
+			//System.out.println("MY NEXT MOVE: " + nextMove); // FOR DEBUGGING
 			theNetwork.sendMove(nextMove);
 			ModelDataEnvelope serverResponse = theNetwork.getModelData();
 			theModel.updateGameModel(serverResponse);
@@ -67,3 +69,8 @@ public class GameController {
 	}
 
 }
+
+
+
+
+

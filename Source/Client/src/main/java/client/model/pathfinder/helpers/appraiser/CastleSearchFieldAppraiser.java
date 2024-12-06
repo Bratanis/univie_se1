@@ -1,13 +1,13 @@
 package client.model.pathfinder.helpers.appraiser;
 
-import java.util.List;
+import java.util.Collection;
 
 import client.model.gamemap.mapelements.Coordinates;
 import client.model.gamemap.mapelements.MapNode;
 
-public class CastleSearchFieldAppraiser extends HalfMapSearchFieldAppraiser {
+public class CastleSearchFieldAppraiser extends HalfMapSearchFieldAppraiser{
 
-	public CastleSearchFieldAppraiser(List<Coordinates> visitedCoordinates) {
+	public CastleSearchFieldAppraiser(Collection<Coordinates> visitedCoordinates) {
 		super(visitedCoordinates);
 		// TODO Auto-generated constructor stub
 	}

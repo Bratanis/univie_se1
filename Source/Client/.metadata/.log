@@ -1,0 +1,13 @@
+!SESSION 2024-12-06 16:46:37.533 -----------------------------------------------
+eclipse.buildId=4.32.0.20240606-1231
+java.version=21.0.5
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -product org.eclipse.epp.package.java.product -data /home/bratan/Desktop/SE1/SE1_Temp/SE1_12228892/Source/Client
+
+!ENTRY ch.qos.logback.classic 1 0 2024-12-06 16:46:39.323
+!MESSAGE Activated before the state location was initialized. Retry after the state location is initialized.
+
+!ENTRY ch.qos.logback.classic 1 0 2024-12-06 16:46:40.030
+!MESSAGE Logback config file: /home/bratan/Desktop/SE1/SE1_Temp/SE1_12228892/Source/Client/.metadata/.plugins/org.eclipse.m2e.logback/logback.2.6.1.20240411-1122.xml

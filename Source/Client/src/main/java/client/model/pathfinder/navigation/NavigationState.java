@@ -18,13 +18,13 @@ import messagesbase.messagesfromclient.EMove;
  * 
  */
 public abstract class NavigationState {
-
+	
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected List<Coordinates> visitedCoordinates;
-
+	
 	protected GameProgress gameProgress;
-
+	
 	protected FieldAppraiser appraiser;
 	protected OrientationHelper orientationHelper;
 
@@ -37,26 +37,32 @@ public abstract class NavigationState {
 		this.orientationHelper = new OrientationHelper();
 	}
 
-	/**
-	 * Will be used to help determine if it's time to switch to the next state
-	 * (going to other side of the map if we are searching a half map or searching a
-	 * half map if we are going to the other side)
-	 * 
-	 * @return
-	 */
-	public abstract boolean goalComplete();
 
 	/**
+	 * Will be used to help determine if it's time to switch to the next state (going to other side of the map
+	 * if we are searching a half map or searching a half map if we are going to the other side) 
+	 * @return 
+	 */
+	public abstract boolean goalComplete(); 
+		
+	
+	/**
 	 * @return
 	 */
-	public Collection<EMove> determineNextMoves(Map<Coordinates, MapNode> surroundings) {
+	public Collection<EMove> determineNextMoves(Map<Coordinates, MapNode> surroundings){
 		logger.debug("Adding my current position to visited coordinates: "
-				+ visitedCoordinates.add(gameProgress.getCurrentCoordinates()));
+						+ visitedCoordinates.add(gameProgress.getCurrentCoordinates()));
 		removeOutOfBoundsFields(surroundings);
 		AppraisedMapField destinationNode = appraiser.getBestMapField(surroundings);
 		return orientationHelper.getDirections(gameProgress.getCurrentCoordinates(), destinationNode);
 	}
-
-	protected abstract void removeOutOfBoundsFields(Map<Coordinates, MapNode> fields);
+	
+	protected abstract void removeOutOfBoundsFields (Map<Coordinates, MapNode> fields);
 
 }
+
+
+
+
+
+

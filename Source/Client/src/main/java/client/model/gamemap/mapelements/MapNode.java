@@ -10,18 +10,19 @@ import messagesbase.messagesfromclient.ETerrain;
 public class MapNode {
 
 	/**
-	 * Attributes:
+	 * Attributes: 
 	 */
-
+	
 	private boolean hasCastle;
 	private boolean hasTreasure;
 	private boolean hasMe;
 	private boolean hasEnemy;
 	private ETerrain terrain;
-
+	
 	private boolean nearTreasure;
 	private boolean nearCastle;
-
+	
+	
 	public ETerrain getTerrain() {
 		return terrain;
 	}
@@ -30,6 +31,7 @@ public class MapNode {
 		this.terrain = terrain;
 	}
 
+	
 	public boolean hasCastle() {
 		return hasCastle;
 	}
@@ -57,15 +59,16 @@ public class MapNode {
 	public boolean hasTreasure() {
 		return this.hasTreasure;
 	}
-
+	
 	public void setHasTreasure(boolean hasTreasure) {
 		this.hasTreasure = hasTreasure;
 	}
 
+	
 	/**
 	 * Methods:
 	 */
-
+	
 	/**
 	 * @param terrain
 	 */
@@ -88,7 +91,7 @@ public class MapNode {
 		this(terrain);
 		this.hasCastle = hasCastle;
 	}
-
+	
 	/**
 	 * @param terrain
 	 * @param hasCastle
@@ -117,21 +120,27 @@ public class MapNode {
 	public void setNearCastle(boolean nearCastle) {
 		this.nearCastle = nearCastle;
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null || getClass() != obj.getClass())
-			return false;
-		MapNode other = (MapNode) obj;
-		return hasMe == other.hasMe && hasCastle == other.hasCastle && hasTreasure == other.hasTreasure
-				&& terrain.equals(other.terrain);
+	    if (this == obj)
+	        return true;
+	    if (obj == null || getClass() != obj.getClass())
+	        return false;
+	    MapNode other = (MapNode) obj;
+	    return hasMe == other.hasMe &&
+	           hasCastle == other.hasCastle &&
+	           hasTreasure == other.hasTreasure &&
+	           terrain.equals(other.terrain);
 	}
-
 	@Override
 	public int hashCode() {
-		return Objects.hash(hasMe, hasCastle, hasTreasure, terrain);
+	    return Objects.hash(hasMe, hasCastle, hasTreasure, terrain);
 	}
 
+	
 }
+
+
+
+

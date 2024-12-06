@@ -1,16 +1,19 @@
 package client.view;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import client.model.GameModel;
+import client.model.GameProgress;
 import client.model.gamemap.GameMap;
 import client.model.gamemap.mapelements.Coordinates;
 import client.model.gamemap.mapelements.MapNode;
 import messagesbase.messagesfromclient.ETerrain;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.*;
+import java.util.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -25,56 +28,59 @@ public class CLIView {
 	 */
 	private PropertyChangeListener gameProgressListener;
 
+	
+	
 	private PropertyChangeListener mapChangeListener;
-
+	
+	 
 	public CLIView() {
 		this.gameProgressListener = new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				// logger.debug("Property changed: " + evt.getPropertyName());
-				printGameProgress(evt);
-			}
-		};
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+            	//logger.debug("Property changed: " + evt.getPropertyName());
+                printGameProgress(evt);
+            }
+        };
 
-		this.mapChangeListener = new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				logger.debug("Property changed: " + evt.getPropertyName());
-				printGameMap((GameMap) evt.getNewValue());
-			}
-		};
+        this.mapChangeListener = new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+            	logger.debug("Property changed: " + evt.getPropertyName());
+                printGameMap((GameMap) evt.getNewValue());
+            }
+        };
 	}
 
 	public void setUpListeners(GameModel gameModel) {
-		gameModel.addGameProgressListener(this.gameProgressListener);
-		gameModel.addGameMapListener(this.mapChangeListener);
-	}
+        gameModel.addGameProgressListener(this.gameProgressListener);
+        gameModel.addGameMapListener(this.mapChangeListener);
+    }
 
 	private void printGameProgress(PropertyChangeEvent evt) {
 		String propertyName = evt.getPropertyName();
 		Object newValue = evt.getNewValue();
 
 		switch (propertyName) {
-		case "currentRound" -> {
-			System.out.println("Round: " + newValue);
-		}
-		case "treasureCollected" -> {
-			if ((boolean) newValue) {
-				treasureFound = true;
-				System.out.println("Treasure Collected!");
+			case "currentRound" -> {
+				System.out.println("Round: " + newValue);
 			}
-		}
-		case "wonGame" -> {
-			if ((boolean) newValue) {
-				printWinMessage();
+			case "treasureCollected" -> {
+				if ((boolean) newValue) {
+					treasureFound = true;
+					System.out.println("Treasure Collected!");
+				}
 			}
-		}
-		case "lostGame" -> {
-			if ((boolean) newValue) {
-				printLossMessage();
+			case "wonGame" -> {
+				if ((boolean) newValue) {
+					printWinMessage();
+				}
 			}
-		}
-		default -> logger.warn("Unknown Game Progress Update: {}", propertyName);
+			case "lostGame" -> {
+				if ((boolean) newValue) {
+					printLossMessage();
+				}
+			}
+			default -> logger.warn("Unknown Game Progress Update: {}", propertyName);
 		}
 
 	}
@@ -84,16 +90,16 @@ public class CLIView {
 	 */
 	private void printGameMap(GameMap map) {
 		System.out.println("__________________________________________________________________\n");
-
+		
 		printXIndexRow(map.getLastCoordinates().getX());
 
 		String printableMapRow = "";
 
-		int numOfRows = map.getLastCoordinates().getY();
-
+		int numOfRows =  map.getLastCoordinates().getY();
+		
 		for (int currentY = 0; currentY <= numOfRows; ++currentY) {
 			printableMapRow += " [Y" + currentY + "] ";
-			printableMapRow += getFormattedLine(currentY, map);
+			printableMapRow += getFormattedLine (currentY, map);
 		}
 
 		System.out.println(printableMapRow);
@@ -108,18 +114,18 @@ public class CLIView {
 	 */
 	private String getFormattedLine(int yRow, GameMap map) {
 
-		int elementsPerLine = map.getLastCoordinates().getX();
-
+		int elementsPerLine =  map.getLastCoordinates().getX(); 
+		
 		String formattedMapLine = "";
-
+	
 //    			logger.info("mapFields: " + gameMap.toString());
 
 		for (int xCol = 0; xCol <= elementsPerLine; ++xCol) {
 			Coordinates targetCoordinates = new Coordinates(xCol, yRow);
 			MapNode targetNode = map.getNodeAt(targetCoordinates);
-			if (targetNode == null) {
-				logger.warn("targetNode with coordinates " + targetCoordinates + " is out of bounds!");
-			}
+		    		if (targetNode == null) {
+						logger.warn("targetNode with coordinates " + targetCoordinates + " is out of bounds!");
+					}
 			formattedMapLine += mapNodeToASCII(targetNode);
 		}
 
@@ -127,21 +133,24 @@ public class CLIView {
 	}
 
 	private void printXIndexRow(int lastMapX) {
-		String xIndexRow = " [X:] ";
-		for (int xCol = 0; xCol <= lastMapX; ++xCol) {
-			xIndexRow += " [" + String.format("%02d", xCol) + "] "; // suggested by ChatGPT
-		}
-		System.out.println(xIndexRow);
+	    String xIndexRow = " [X:] ";
+	    for (int xCol = 0; xCol <= lastMapX; ++xCol) {
+	        xIndexRow += " [" + String.format("%02d", xCol) + "] "; // suggested by ChatGPT
+	    }
+	    System.out.println(xIndexRow);
 	}
 
+
 	/**
-	 * @param mapNode
+	 * @param mapNode 
 	 * @return
 	 */
 	private String mapNodeToASCII(MapNode mapNode) {
 		if (mapNode.hasCastle()) {
 			return " _IHI_";
-		} else if (mapNode.hasEnemy() && mapNode.hasMe()) {
+		} else if (mapNode.hasTreasure()) {
+			return " _[$]_";
+		}  else if (mapNode.hasEnemy() && mapNode.hasMe()) {
 			return "!%#@✴&";
 		} else if (mapNode.hasMe()) {
 			if (treasureFound)
@@ -150,8 +159,6 @@ public class CLIView {
 				return " (°‿°)";
 		} else if (mapNode.hasEnemy()) {
 			return " (`ʖ̯´)";
-		} else if (mapNode.hasTreasure()) {
-			return " _[$]_";
 		} else {
 
 			switch (mapNode.getTerrain()) {
@@ -167,6 +174,7 @@ public class CLIView {
 		}
 	}
 
+
 	/**
 	 * 
 	 */
@@ -180,5 +188,6 @@ public class CLIView {
 	private void printLossMessage() {
 		System.out.println("SORRY! YOU LOST THE GAME!");
 	}
+
 
 }

@@ -1,23 +1,25 @@
 package client.model.pathfinder.helpers;
 
+import java.util.Collection;
+
 import client.model.gamemap.mapelements.Coordinates;
 import client.model.gamemap.mapelements.MapNode;
+import client.model.pathfinder.helpers.appraiser.ENodePriority;
 import messagesbase.messagesfromclient.ETerrain;
 
-public class AppraisedMapField implements Comparable<AppraisedMapField> {
+public class AppraisedMapField implements Comparable<AppraisedMapField>{
 
 	private final Coordinates fieldCoordinates;
 	private final MapNode fieldMapNode;
-//	private final ENodePriority fieldPriority;
-	private final Integer desirablilityIndex;
-
-	public AppraisedMapField(Coordinates fieldCoordinates, MapNode fieldMapNode, int desirabilityIndex) {
+	private final ENodePriority fieldPriority;
+	
+	public AppraisedMapField(Coordinates fieldCoordinates, MapNode fieldMapNode, ENodePriority fieldPriority) {
 		super();
 		this.fieldCoordinates = fieldCoordinates;
 		this.fieldMapNode = fieldMapNode;
-		this.desirablilityIndex = desirabilityIndex;
+		this.fieldPriority = fieldPriority;
 	}
-
+	
 //	public ENodePriority getFieldPriority() {
 //		return fieldPriority;
 //	}
@@ -25,7 +27,7 @@ public class AppraisedMapField implements Comparable<AppraisedMapField> {
 
 	@Override
 	public int compareTo(AppraisedMapField otherField) {
-		return desirablilityIndex.compareTo(otherField.desirablilityIndex);
+		return fieldPriority.compareTo(otherField.fieldPriority);
 	}
 //	 public static WeightedMapField findHighestPriority(Collection<WeightedMapField> fields) {
 //	     return fields.stream()
@@ -41,5 +43,6 @@ public class AppraisedMapField implements Comparable<AppraisedMapField> {
 	public Coordinates getCoordinates() {
 		return fieldCoordinates;
 	}
+
 
 }

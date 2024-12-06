@@ -31,33 +31,34 @@ import reactor.core.publisher.Mono;
 public class MainClient {
 
 	public static void main(String[] args) throws UserInputException {
-
-		// Arguments: TR https://swe1.wst.univie.ac.at <the game id>
+		
+        
 		try {
-			// String gameMode = args[0]; Not used anywhere in my implementation
-
+			//String gameMode = args[0]; Not used anywhere in my implementation
+	
 			URL serverBaseUrl;
 			try {
 				serverBaseUrl = (new URI(args[1])).toURL();
 			} catch (MalformedURLException | URISyntaxException e) {
 				throw new UserInputException("Invalid URL. Could not connect to Server;");
 			}
-
+	
 			UniqueGameIdentifier currentGameID = UniqueGameIdentifier.of(args[2]);
-
-			ClientNetwork theNetwork = new ClientNetwork(serverBaseUrl, currentGameID);
+		
+			
+			ClientNetwork theNetwork = new ClientNetwork(serverBaseUrl, currentGameID);	
 			GameModel theModel = new GameModel();
 			CLIView theView = new CLIView();
-
-			GameController theController = new GameController(theNetwork, theModel, theView); // Dependency injection
-																								// for modularity
+	
+			GameController theController = new GameController(theNetwork, theModel, theView); // Dependency injection for modularity 
 			theController.initializeGame(); // Register the client
 			theController.initialMapExchange(); // Send the locally generated half map and get server full map
 			theController.startGame(); // Start sending moves and updating the local data until game is finished
-
+			
 		} catch (UserInputException e) {
 			e.printStackTrace();
 		}
 	}
-
+	
+	
 }
