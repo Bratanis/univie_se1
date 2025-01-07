@@ -148,6 +148,14 @@ public abstract class GameMap {
 		return  mapFields.get(targetCoordinates);
 	}
 
+	public boolean hasCastleAt(Coordinates coordinates) {
+		MapNode targetNode = getNodeAt(coordinates);
+		if (targetNode != null)
+			return targetNode.hasCastle();
+		else {
+			return false;
+		}
+	}
 //	public ETerritory getEnemyTerritory() {
 //		return enemyTerritory;
 //	}

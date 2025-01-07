@@ -2,6 +2,7 @@ package client.gamelogic.mapcreation;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -18,12 +19,18 @@ import messagesbase.messagesfromclient.ETerrain;
 public class MapValidator {
 	
 	private final Logger logger;
+	List<String> notifications;
+	private final int MIN_GRASS_FIELDS = 24;
+	private final int MIN_MOUNTAIN_FIELDS = 5;
+	private final int MIN_WATER_FIELDS = 7;
+	private final int TOTAL_NUM_OF_FIELDS = 50;
 
 	/**
 	 * Default constructor
 	 */
 	public MapValidator() {
 		this.logger = LoggerFactory.getLogger(MapValidator.class);
+		notifications = new ArrayList<>();
 	}
 
 	/**
@@ -31,30 +38,99 @@ public class MapValidator {
 	 * @return
 	 */
 	public boolean mapIsValid(ClientHalfMap testMap) {
-		boolean noIslands = hasNoIslands(testMap);
-		boolean edgesOk = waterOnEdgesLeqHalf(testMap);
-		if (!noIslands)
-			logger.info("The map has islans");
-		if (!edgesOk)
-			logger.info("Map edges have too much water!");
-		return (noIslands && edgesOk); 
+		checkForIslands(testMap);
+		checkIfWaterOnEdgesLeqHalf(testMap);
+		checkIfMinNumOfEachTerrainPresent(testMap);
+		
+		if (notifications.isEmpty()) {
+            logger.info("Map is valid.");
+            return true;
+        } else {
+            logger.info("Map is invalid:");
+            notifications.forEach(logger::info);
+            
+            // clear the notification list so the next map can be tested with a clean slate
+            notifications = new ArrayList<>(); 
+            
+            return false;
+        }
 	}
 	
 	
+
+	private void checkIfMinNumOfEachTerrainPresent(ClientHalfMap testMap) {
+	
+		int grassCount = 0;
+		int mountainCount = 0;
+		int waterCount = 0;
+		int totalFieldCount = 0;
+		boolean castlePresent = false;
+		
+		int lastX = testMap.getLastCoordinates().getX();
+	    int lastY = testMap.getLastCoordinates().getY();
+
+	    for (int y = 0; y <= lastY; y++) {
+	        for (int x = 0; x <= lastX; x++) {
+	        	
+	        	++totalFieldCount;
+	            
+	        	Coordinates coordinates = new Coordinates(x, y);
+	            ETerrain terrain = testMap.getTerrainAt(coordinates);
+
+	            switch (terrain) {
+	                case Grass:
+	                    ++grassCount;
+	                    break;
+	                case Mountain:
+	                    ++mountainCount;
+	                    break;
+	                case Water:
+	                    ++waterCount;
+	                    break;
+	            }
+
+	            // Check for castle presence
+	            if (testMap.hasCastleAt(coordinates)) {
+	                castlePresent = true;
+	            }
+	        }
+	    }
+
+	    // Check minimum terrain counts
+	    if (grassCount < MIN_GRASS_FIELDS) {
+	        notifications.add("Map has fewer grass fields than the minimum required (" + MIN_GRASS_FIELDS + ").");
+	    }
+	    if (mountainCount < MIN_MOUNTAIN_FIELDS) {
+	        notifications.add("Map has fewer mountain fields than the minimum required (" + MIN_MOUNTAIN_FIELDS + ").");
+	    }
+	    if (waterCount < MIN_WATER_FIELDS) {
+	        notifications.add("Map has fewer water fields than the minimum required (" + MIN_WATER_FIELDS + ").");
+	    }
+	    if (totalFieldCount != TOTAL_NUM_OF_FIELDS) {
+	    	notifications.add("Map should have " + TOTAL_NUM_OF_FIELDS + " but has " + totalFieldCount);
+	    }
+	    if (!castlePresent) {
+	        notifications.add("No castle is present on the map.");
+	    }	
+		
+	}
 
 	/**
 	 * Map can have max 2 water on the short sides and max 4 water on the long sides
 	 * @param gameMap
 	 * @return
 	 */
-	private boolean waterOnEdgesLeqHalf(ClientHalfMap gameMap) {
+	private void checkIfWaterOnEdgesLeqHalf(ClientHalfMap gameMap) {
 		
-		return (checkTopAndBottomForWater(gameMap) && checkLeftAndRightForWater(gameMap));
+		// Opposite sides are checked at the same time to reduce the number of times the map needs to be checked
+		// (opposide side water fields can be counted in the same loop)
+		checkTopAndBottomForWater(gameMap);
+		checkLeftAndRightForWater(gameMap);
 	}
 
 
 	// Helper function for waterOnEdgesLeqHalf
-	private boolean checkTopAndBottomForWater(ClientHalfMap gameMap) {
+	private void checkTopAndBottomForWater(ClientHalfMap gameMap) {
 		
 		int firstX = 0; // column
 		int lastX = gameMap.getLastCoordinates().getX();
@@ -77,17 +153,17 @@ public class MapValidator {
 		}
 	
 		int maxWaterOnSides = lastX/2;
-		if (waterCountTop >= maxWaterOnSides || waterCountBottom >= maxWaterOnSides) {
-			logger.debug("Water on the top side is: " + waterCountTop + " but should be <= " + maxWaterOnSides);
-			logger.debug("Water on the bottom side is: " + waterCountBottom + " but should be <= " + maxWaterOnSides);
-			return false;
-		} else {
-			return true;
+		if (waterCountTop > maxWaterOnSides) {
+			notifications.add("Water on the top side is: " + waterCountTop + " but should be <= " + maxWaterOnSides);
+		}
+		if (waterCountBottom > maxWaterOnSides){
+			notifications.add("Water on the bottom side is: " + waterCountBottom + " but should be <= " + maxWaterOnSides);
 		}
 	}
+
 	
 	// Helper function for waterOnEdgesLeqHalf
-	private boolean checkLeftAndRightForWater(ClientHalfMap gameMap) {
+	private void checkLeftAndRightForWater(ClientHalfMap gameMap) {
 		
 		int firstX = 0; // column
 		int lastX = gameMap.getLastCoordinates().getX();
@@ -110,12 +186,11 @@ public class MapValidator {
 			}
 		}
 		int maxWaterOnSides = lastY/2;
-		if (waterCountLeft >= maxWaterOnSides || waterCountRight >= lastY/2+1) {
-			logger.debug("Water on the left side is: " + waterCountLeft + " but should be <= " + maxWaterOnSides);
-			logger.debug("Water on the right side is: " + waterCountRight + " but should be <= " + maxWaterOnSides);
-			return false;
-		} else {
-			return true;
+		if (waterCountLeft > maxWaterOnSides ) {
+			notifications.add("Water on the left side is: " + waterCountLeft + " but should be <= " + maxWaterOnSides);
+		}
+		if (waterCountRight > maxWaterOnSides) {
+			notifications.add("Water on the right side is: " + waterCountRight + " but should be <= " + maxWaterOnSides);
 		}
 	}
 	
@@ -128,7 +203,7 @@ public class MapValidator {
 	 * neighbours of the element that was last put in the bucket. 
 	 */
 
-	private boolean hasNoIslands(ClientHalfMap gameMap) {
+	private void checkForIslands(ClientHalfMap gameMap) {
 
 		Set<Coordinates> visited = new LinkedHashSet<Coordinates>();
 
@@ -139,7 +214,7 @@ public class MapValidator {
 		// If there are walkable fields in the map that haven't been added to the set,
 		// that mean that there
 		// are islands on the map
-		return fieldsCanBeVisited(gameMap, visited);
+		checkIfAllFieldsCanBeVisited(gameMap, visited);
 
 	}
 	
@@ -152,7 +227,7 @@ public class MapValidator {
 				testCoordinates = new Coordinates (testX++, testY);
 			else if (testY < ClientHalfMap.LAST_COORDINATES.getY())
 				testCoordinates = new Coordinates (testX, testY++);
-			else throw new IllegalStateException ("map validator couldn't find any grass nodes on the map!");
+			else throw new IllegalStateException ("Map validator couldn't find any grass nodes on the map!");
 		}
 		return testCoordinates;
 	}
@@ -161,7 +236,7 @@ public class MapValidator {
 	 * Helper function that compares the walkable fields in the gameMap to the ones
 	 * in the "visited" set
 	 */
-	private boolean fieldsCanBeVisited(ClientHalfMap gameMap, Set<Coordinates> visited) {
+	private void checkIfAllFieldsCanBeVisited(ClientHalfMap gameMap, Set<Coordinates> visited) {
 		// Get the dimensions of the map
 		int lastX = gameMap.getLastCoordinates().getX();
 		int lastY = gameMap.getLastCoordinates().getY();
@@ -175,13 +250,11 @@ public class MapValidator {
 				if (targetTerrain != ETerrain.Water) {
 					// If its not found in the list of visited fields return false
 					if (!visited.contains(targetCoordinates)) {
-						return false;
+						notifications.add("Found a field that cannot be visited! The map has islands!");
 					}
 				}
 			}
 		}
-		// Returns true by default if no unvisited nodes are found
-		return true;
 	}
 
 	/**

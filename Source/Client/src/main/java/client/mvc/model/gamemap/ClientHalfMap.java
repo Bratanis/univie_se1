@@ -48,5 +48,7 @@ public class ClientHalfMap extends GameMap {
 		territories.setEnemyTerriotry(ETerritory.None);
 		return territories;
 	}
+
+	
 														
 }

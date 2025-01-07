@@ -23,11 +23,13 @@ public class MapGenerator {
 	 * Attributes:
 	 */
 	
-	// Minimum requirements for the map
-	// private static final int MIN_GRASS_FIELDS = 24; // The generator will favor placing grass so this is unnecessary
-	private final int MIN_MOUNTAIN_FIELDS = 10;
-	private final int MIN_WATER_FIELDS = 7;
+	// Not the minimums set by the business rules, but modified minimums that favor mountain terrain (quicker games)
+	// The exact number of terrains is differnet for each map but is always Min <= actual num placed <= Min+3
+	
+	// private static final int MIN_GRASS_FIELDS = 24; // The generator will default to placing grass fields 50 - 25 = 25
 
+	private final int MIN_MOUNTAIN_FIELDS = 12; // max 15
+	private final int MIN_WATER_FIELDS = 7; // max 10  
 	private final int TOTAL_NUM_FIELDS = 50;
 
 	private Logger logger = LoggerFactory.getLogger(MapGenerator.class);;
@@ -120,7 +122,7 @@ public class MapGenerator {
 	 */
 	private int generateFieldNum(int minimum) {
 		Random r = new Random();
-		int extra = r.nextInt(5);
+		int extra = r.nextInt(3);
 		return minimum + extra;
 	}
 
