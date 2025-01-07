@@ -1,10 +1,21 @@
 package client.network;
 
+import java.net.URL;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import client.customexceptions.ServerCommunicationException;
 import client.customexceptions.UserInputException;
-import client.model.gamemap.GameMap;
+import client.mvc.model.gamemap.GameMap;
 import client.network.servercompatlayer.ClientToServerDataConverter;
-import client.network.servercompatlayer.ModelDataEnvelope;
+import client.network.servercompatlayer.ServerDataEnvelope;
 import client.network.servercompatlayer.ServerToClientDataConverter;
 import messagesbase.ResponseEnvelope;
 import messagesbase.UniqueGameIdentifier;
@@ -19,17 +30,6 @@ import messagesbase.messagesfromserver.FullMap;
 import messagesbase.messagesfromserver.GameState;
 import messagesbase.messagesfromserver.PlayerState;
 import reactor.core.publisher.Mono;
-
-import java.io.*;
-import java.net.URL;
-import java.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 
 
 
@@ -223,7 +223,7 @@ public class ClientNetwork {
 	/**
 	 * @return
 	 */
-	public ModelDataEnvelope getModelData() {
+	public ServerDataEnvelope getServerData() {
 		
 		FullMap serverMap = new FullMap();
 
@@ -233,10 +233,10 @@ public class ClientNetwork {
 		}
 		PlayerState myCurrentPlayerState = getMyPlayerState();
 
-		ModelDataEnvelope newModelDataEnvelope = fromServer.getModelDataEnvelope(cachedGameState.getMap(), 
+		ServerDataEnvelope newServerDataEnvelope = fromServer.getServerDataEnvelope(cachedGameState.getMap(), 
 																				 myCurrentPlayerState.hasCollectedTreasure(),
 																				 myCurrentPlayerState.getState());
-		return newModelDataEnvelope;
+		return newServerDataEnvelope;
 	}
 
 	/**

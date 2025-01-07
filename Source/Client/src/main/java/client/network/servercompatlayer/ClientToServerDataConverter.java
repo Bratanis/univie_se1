@@ -1,16 +1,16 @@
 package client.network.servercompatlayer;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import client.customexceptions.IllegalConversionException;
-import client.model.gamemap.ClientHalfMap;
-import client.model.gamemap.GameMap;
-import client.model.gamemap.mapelements.Coordinates;
-import client.model.gamemap.mapelements.MapNode;
+import client.mvc.model.gamemap.ClientHalfMap;
+import client.mvc.model.gamemap.GameMap;
+import client.mvc.model.gamemap.mapelements.Coordinates;
+import client.mvc.model.gamemap.mapelements.MapNode;
 import messagesbase.UniquePlayerIdentifier;
-import messagesbase.messagesfromclient.ETerrain;
 import messagesbase.messagesfromclient.PlayerHalfMap;
 import messagesbase.messagesfromclient.PlayerHalfMapNode;
-
-import java.util.*;
 
 /**
  * 

@@ -5,28 +5,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.spi.LoggerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-
-import client.controller.GameController;
-import client.network.ClientNetwork;
 import client.customexceptions.UserInputException;
-import client.model.GameModel;
-import client.view.CLIView;
-import messagesbase.UniquePlayerIdentifier;
-import messagesbase.messagesfromclient.PlayerRegistration;
-import messagesbase.ResponseEnvelope;
+import client.gamelogic.manager.GameManager;
+import client.mvc.controller.MVCController;
+import client.mvc.model.GameModel;
+import client.mvc.view.CLIView;
+import client.network.ClientNetwork;
 import messagesbase.UniqueGameIdentifier;
-import messagesbase.messagesfromclient.ERequestState;
-import messagesbase.messagesfromserver.GameState;
-import reactor.core.publisher.Mono;
 
 public class MainClient {
 
@@ -47,10 +32,13 @@ public class MainClient {
 		
 			
 			ClientNetwork theNetwork = new ClientNetwork(serverBaseUrl, currentGameID);	
+			
 			GameModel theModel = new GameModel();
 			CLIView theView = new CLIView();
+			
+			MVCController mvcCtl= new MVCController (theModel, theView);
 	
-			GameController theController = new GameController(theNetwork, theModel, theView); // Dependency injection for modularity 
+			GameManager theController = new GameManager(theNetwork, mvcCtl); // Dependency injection for modularity 
 			theController.initializeGame(); // Register the client
 			theController.initialMapExchange(); // Send the locally generated half map and get server full map
 			theController.startGame(); // Start sending moves and updating the local data until game is finished

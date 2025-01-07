@@ -1,28 +1,26 @@
 package client.network.servercompatlayer;
 
-import java.io.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import client.customexceptions.IllegalConversionException;
-import client.model.GameProgress;
-import client.model.gamemap.GameMap;
-import client.model.gamemap.LongGameMap;
-import client.model.gamemap.SquareGameMap;
-import client.model.gamemap.mapelements.Coordinates;
-import client.model.gamemap.mapelements.MapNode;
+import client.mvc.model.gamemap.GameMap;
+import client.mvc.model.gamemap.LongGameMap;
+import client.mvc.model.gamemap.SquareGameMap;
+import client.mvc.model.gamemap.mapelements.Coordinates;
+import client.mvc.model.gamemap.mapelements.MapNode;
 import messagesbase.messagesfromserver.EFortState;
 import messagesbase.messagesfromserver.EPlayerGameState;
 import messagesbase.messagesfromserver.EPlayerPositionState;
 import messagesbase.messagesfromserver.ETreasureState;
 import messagesbase.messagesfromserver.FullMap;
 import messagesbase.messagesfromserver.FullMapNode;
-import messagesbase.messagesfromserver.GameState;
 
 /**
- * 
+ * This class turns the data received from the server to a client-compatible class called ServerDataEnvelope
  */
 public class ServerToClientDataConverter {
 	
@@ -46,42 +44,59 @@ public class ServerToClientDataConverter {
 	 * @param myWinOrLoss
 	 * @return
 	 */
-	public ModelDataEnvelope getModelDataEnvelope(FullMap serverMap, boolean collectedTreasure, EPlayerGameState myWinOrLoss) {
+	public ServerDataEnvelope getServerDataEnvelope(FullMap serverMap, boolean collectedTreasure, EPlayerGameState myWinOrLoss) {
 
 		GameMap newGameMap = convertToLocalGameMap(serverMap);
 		
-		GameProgress newGameProgress = determineGameProgress(newGameMap, collectedTreasure, myWinOrLoss); 
+//		GameProgress newGameProgress = determineGameProgress(newGameMap, collectedTreasure, myWinOrLoss); 
 	
-		ModelDataEnvelope res = new ModelDataEnvelope(newGameMap, newGameProgress);
+//		ServerDataEnvelope res = new ServerDataEnvelope(newGameMap, newGameProgress);
 		
-		logger.debug("new ModelDataEnvelope: " + res);
-		
-		return res;
-	}
-	
-	private GameProgress determineGameProgress (GameMap newGameMap, boolean collectedTreasure, EPlayerGameState myWinOrLoss) {
-	 
 		// First make sure you have pinned your current position while extracting the map data
-		assert (myCurrentCoordinates.equals(new Coordinates()));
+		assert (!myCurrentCoordinates.equals(new Coordinates()));
+		ServerDataEnvelope newData = new ServerDataEnvelope.Builder(newGameMap, myCurrentCoordinates)
+															.setTreasureCollected(collectedTreasure)
+															.setWonGame(haveIWon(myWinOrLoss))
+															.setLostGame(haveILost(myWinOrLoss))
+															.build();
 		
-		boolean wonGame;
-		boolean lostGame;
-		if (myWinOrLoss == EPlayerGameState.Won) 
-			wonGame = true;
-		else 
-			wonGame = false;
-		if (myWinOrLoss == EPlayerGameState.Lost) {
-			lostGame = true;
-			
-		// TEMP
-			System.exit(0);
-		}
-			
-		else
-			lostGame = false;
+		logger.debug("new ModelDataEnvelope: " + newData);
 		
-		return new GameProgress(collectedTreasure, wonGame, lostGame, myCurrentCoordinates);
+		return newData;
 	}
+	
+	private boolean haveIWon(EPlayerGameState myWinOrLoss) {
+		return myWinOrLoss == EPlayerGameState.Won;
+	}
+	
+	private boolean haveILost (EPlayerGameState myWinOrLoss) {
+		return myWinOrLoss == EPlayerGameState.Lost;
+	}
+
+	
+//	private GameProgress determineGameProgress (GameMap newGameMap, boolean collectedTreasure, EPlayerGameState myWinOrLoss) {
+//	 
+//		// First make sure you have pinned your current position while extracting the map data
+//		assert (!myCurrentCoordinates.equals(new Coordinates()));
+//		
+//		boolean wonGame;
+//		boolean lostGame;
+//		if (myWinOrLoss == EPlayerGameState.Won) 
+//			wonGame = true;
+//		else 
+//			wonGame = false;
+//		if (myWinOrLoss == EPlayerGameState.Lost) {
+//			lostGame = true;
+//			
+//		// TEMP
+////			System.exit(0);
+//		}
+//			
+//		else
+//			lostGame = false;
+//		
+//		return new GameProgress(collectedTreasure, wonGame, lostGame, myCurrentCoordinates);
+//	}
 	
 	
 
