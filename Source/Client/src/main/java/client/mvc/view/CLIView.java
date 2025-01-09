@@ -45,10 +45,12 @@ public class CLIView {
     
 
     public void handleTechnicalInternalsPropertyChange(PropertyChangeEvent evt, MvcNotificationCollector technicalInternalsModel) {
-		
-    	// Every time a notification gets added to the list, print it out to the console
-    	System.out.println(technicalInternalsModel.getNotifications().getLast());
-	}
+        if ("Added notification".equals(evt.getPropertyName())) {
+            String latestNotification = (String) evt.getNewValue();
+            System.out.println(latestNotification); // Print only the latest notification every time a change gets fired!
+        }
+    }
+
 
 	private void handleGameModelPropertyChange(PropertyChangeEvent evt, GameModel model) {
         String propertyName = evt.getPropertyName();

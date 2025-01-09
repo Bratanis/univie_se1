@@ -24,6 +24,7 @@ public class MvcNotificationCollector implements NotificationCollector{
 	public void addNotification(String message) {
 		 String detailedMessage = formatMessageWithStackTrace(message);
 	     notifications.add(detailedMessage);
+	     support.firePropertyChange("Added notification", null, detailedMessage); // Old version of the object will not be used
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package mvc.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -40,7 +42,10 @@ public class MvcNotificationCollectorTest {
         verify(mockListener, times(1)).propertyChange(eventCaptor.capture());
 
         // Verify the data received by the listener is the new notification added to the collector
-        PropertyChangeEvent capturedEvent = eventCaptor.getValue();
-        assertEquals(notificationMessage, capturedEvent.getNewValue()); 
+        PropertyChangeEvent capturedPCEvent = eventCaptor.getValue();
+        assertEquals("Added notification", capturedPCEvent.getPropertyName());
+        String notificationReceivedByListener = (String) capturedPCEvent.getNewValue();
+        assertTrue(notificationReceivedByListener.startsWith(notificationMessage)); // the message that is saved in the MvcNotificationCollector
+        																			// will also have the stack trace appended to it
     }
 }
