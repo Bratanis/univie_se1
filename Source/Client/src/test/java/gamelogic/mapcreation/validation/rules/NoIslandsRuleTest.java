@@ -20,12 +20,15 @@ import messagesbase.messagesfromclient.ETerrain;
 
 class NoIslandsRuleTest {
 
-	ClientHalfMap mapWithOneUnreachableField;
-	ClientHalfMap mapWithManyUnreachableFields;
-	ClientHalfMap mapWithNoUnreachableFields;
+	private ClientHalfMap mapWithOneUnreachableField;
+	private ClientHalfMap mapWithManyUnreachableFields;
+	private ClientHalfMap mapWithNoUnreachableFields;
 	
-	NotificationCollector collector;
-	NoIslandsRule rule;
+	private NotificationCollector collector;
+	private NoIslandsRule rule;
+	
+	private String expectedNotification = "Found a field that cannot be visited! The map has islands!";
+	
 	
 	@BeforeEach
 	void createRule() {
@@ -73,25 +76,41 @@ class NoIslandsRuleTest {
 		this.mapWithNoUnreachableFields = new ClientHalfMap(testMapFields);
 	}
 	
+	
+	private List<String> getRuleNotifications(ClientHalfMap testMap) {
+		collector.clear();
+		rule.validate(testMap, collector);
+		return collector.getNotifications();
+	}
+	
+	
 	@Test
 	void oneUnreachableFieldTest() {
-		collector.clear();
-		rule.validate(mapWithOneUnreachableField, collector);
-		assertFalse(collector.getNotifications().isEmpty());
+
+		List<String> notifications = getRuleNotifications(mapWithOneUnreachableField);
+		
+		//Make sure that notification is the right one!
+		assertTrue(notifications.getFirst().startsWith(expectedNotification));
 	}
+
+	
 	
 	@Test
 	void manyUnreachableFieldsTest() {
-		collector.clear();
-		rule.validate(mapWithManyUnreachableFields, collector);
-		assertFalse(collector.getNotifications().isEmpty());
+
+		List<String> notifications = getRuleNotifications(mapWithOneUnreachableField);
+		
+		//Make sure that notification is the right one!
+		assertTrue(notifications.getFirst().startsWith(expectedNotification));
 	}
 
 	@Test
 	void noUnreachableFieldsTest() {
-		collector.clear();
-		rule.validate(mapWithNoUnreachableFields, collector);
-		assertTrue(collector.getNotifications().isEmpty());
+
+		List<String> notifications = getRuleNotifications(mapWithOneUnreachableField);
+		
+		//Make sure that notification is the right one!
+		assertTrue(notifications.getFirst().startsWith(expectedNotification));
 	}
 
 }

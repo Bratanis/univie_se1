@@ -98,43 +98,75 @@ class MaxWaterOnEdgesRuleTest {
 		okayMap = new ClientHalfMap(grassOnlyMapFields);
 	}
 	
-	
+	private List<String> getRuleNotifications(ClientHalfMap testMap) {
+		collector.clear();
+		rule.validate(testMap, collector);
+		List<String> notifications = collector.getNotifications();
+		return notifications;
+	}
 	
 	
 	@Test
 	void tooMuchWaterOnBottomTest() {
-		collector.clear();
-		rule.validate(tooMuchWaterOnBottomMap, collector);
-		List<String> notifications = collector.getNotifications();
+		
+		String expectedNotification = "Water on the bottom side is:";
+		
+		List<String> notifications = getRuleNotifications(tooMuchWaterOnBottomMap);
+
+		//Make sure there is only one notification!
 		assertTrue(notifications.size() == 1);
+
+		//Make sure that notification is the right one!
+		assertTrue(notifications.getFirst().startsWith(expectedNotification));
 	}
+
+	
 	
 	@Test
 	void tooMuchWaterOnTopTest() {
-		collector.clear();
-		rule.validate(tooMuchWaterOnTopMap, collector);
-		List<String> notifications = collector.getNotifications();
+		
+		String expectedNotification = "Water on the top side is:";
+		
+		List<String> notifications = getRuleNotifications(tooMuchWaterOnTopMap);
+
+		//Make sure there is only one notification!
 		assertTrue(notifications.size() == 1);
+
+		//Make sure that notification is the right one!
+		assertTrue(notifications.getFirst().startsWith(expectedNotification));
 	}
 	
 	@Test
 	void tooMuchWaterOnLeftTest() {
-		collector.clear();
-		rule.validate(tooMuchWaterOnLeftMap, collector);
-		List<String> notifications = collector.getNotifications();
+		
+		String expectedNotification = "Water on the left side is:";
+		
+		List<String> notifications = getRuleNotifications(tooMuchWaterOnLeftMap);
+
+		//Make sure there is only one notification!
 		assertTrue(notifications.size() == 1);
+
+		//Make sure that notification is the right one!
+		assertTrue(notifications.getFirst().startsWith(expectedNotification));
 	}
 	
 	@Test
 	void tooMuchWaterOnRightTest() {
-		collector.clear();
-		rule.validate(tooMuchWaterOnRightMap, collector);
-		List<String> notifications = collector.getNotifications();
+		
+		String expectedNotification = "Water on the right side is:";
+		
+		List<String> notifications = getRuleNotifications(tooMuchWaterOnRightMap);
+
+		//Make sure there is only one notification!
 		assertTrue(notifications.size() == 1);
+
+		//Make sure that notification is the right one!
+		assertTrue(notifications.getFirst().startsWith(expectedNotification));
 	}
 	
 	@Test
 	void noWaterOnEdgesTest() {
+		
 		collector.clear();
 		rule.validate(okayMap, collector);
 		assertTrue(collector.getNotifications().isEmpty());

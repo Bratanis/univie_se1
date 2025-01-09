@@ -1,5 +1,6 @@
 package gamelogic.mapcreation.validation.rules;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -163,42 +164,82 @@ class TerrainCountRuleTest {
 	
 	@Test
 	void notEnoughGrassFieldsTest() {
+		
+		String expectedNotification = "Map has fewer grass fields than the minimum required";
+		
 		collector.clear();
 		rule.validate(mapWith23GrassFields, collector);
 		List<String> notifications = collector.getNotifications();
+		
+		//Make sure there is only one notification!
 		assertTrue(notifications.size() == 1);
+
+		//Make sure that notification is the right one!
+		assertTrue(notifications.getFirst().startsWith(expectedNotification));
 	}
 	
 	@Test
 	void notEnoughMountainFieldsTest() {
+
+		String expectedNotification = "Map has fewer mountain fields than the minimum required";
+
 		collector.clear();
 		rule.validate(mapWith4MountainFields, collector);
 		List<String> notifications = collector.getNotifications();
+
+		//Make sure there is only one notification!
 		assertTrue(notifications.size() == 1);
+
+		//Make sure that notification is the right one!
+		assertTrue(notifications.getFirst().startsWith(expectedNotification));
 	}
 	
 	@Test
 	void notEnoughWaterFieldsTest() {
+
+		String expectedNotification = "Map has fewer water fields than the minimum required";
+
 		collector.clear();
 		rule.validate(mapWith6WaterFields, collector);
 		List<String> notifications = collector.getNotifications();
+
+		//Make sure there is only one notification!
 		assertTrue(notifications.size() == 1);
+
+		//Make sure that notification is the right one!
+		assertTrue(notifications.getFirst().startsWith(expectedNotification));
 	}
 	
 	@Test
 	void terrainOkButNoCastleTest() {
+
+		String expectedNotification = "No castle is present on the map.";
+
 		collector.clear();
 		rule.validate(terrainOkButNoCastleMap, collector);
 		List<String> notifications = collector.getNotifications();
+
+		//Make sure there is only one notification!
 		assertTrue(notifications.size() == 1);
+
+		//Make sure that notification is the right one!
+		assertTrue(notifications.getFirst().startsWith(expectedNotification));
 	}
 	
 	@Test
 	void notEnoughFieldsTest() {
+
+		String expectedNotification = "Map should have ";
+
 		collector.clear();
 		rule.validate(notEnoughFieldsMap, collector);
 		List<String> notifications = collector.getNotifications();
+
+		//Make sure there is only one notification!
 		assertTrue(notifications.size() == 1);
+
+		//Make sure that notification is the right one!
+		assertTrue(notifications.getFirst().startsWith(expectedNotification));
 	}
 	
 	@Test
