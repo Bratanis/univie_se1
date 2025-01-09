@@ -44,7 +44,7 @@ public class CLIView {
     
     
 
-    protected void handleTechnicalInternalsPropertyChange(PropertyChangeEvent evt, MvcNotificationCollector technicalInternalsModel) {
+    public void handleTechnicalInternalsPropertyChange(PropertyChangeEvent evt, MvcNotificationCollector technicalInternalsModel) {
 		
     	// Every time a notification gets added to the list, print it out to the console
     	System.out.println(technicalInternalsModel.getNotifications().getLast());
