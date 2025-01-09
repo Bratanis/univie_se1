@@ -22,7 +22,7 @@ public abstract class GameMap {
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(GameMap.class);
 	
-	protected HashMap<Coordinates, MapNode> mapFields;
+	protected Map<Coordinates, MapNode> mapFields;
 	
 //	protected ETerritory myTerritory = ETerritory.None;		// Not useable for the abstract parent class
 //	protected ETerritory enemyTerritory = ETerritory.None; // Will make sense for the actual implementing classes (parent class abstract anyway
@@ -40,7 +40,7 @@ public abstract class GameMap {
 ////		this.support = new PropertyChangeSupport(this);
 //	}
 	
-	public GameMap(HashMap<Coordinates, MapNode> mapFields) {
+	public GameMap(Map<Coordinates, MapNode> mapFields) {
 //		this (mapFields, new Coordinates(-1, -1));
 		this.mapFields = mapFields;
 	}

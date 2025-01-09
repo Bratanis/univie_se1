@@ -38,10 +38,15 @@ public class GameModel {
 	
 	private Logger logger;
 	
+//	private MvcNotificationCollector technicalData;
 
 	/**
 	 * Methods: 
 	 */
+	
+//	private void setTechnicalData(MvcNotificationCollector technicalData) {
+//		this.technicalData = technicalData;
+//	}
 	
 	/**
 	 * Returns true if the model has a gameMap set

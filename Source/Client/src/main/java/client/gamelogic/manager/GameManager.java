@@ -2,11 +2,13 @@ package client.gamelogic.manager;
 
 import client.customexceptions.UserInputException;
 import client.gamelogic.mapcreation.MapGenerator;
-import client.gamelogic.mapcreation.MapValidator;
+import client.gamelogic.mapcreation.validation.MapValidator;
+import client.gamelogic.mapcreation.validation.NotificationCollector.NotificationCollector;
 import client.gamelogic.pathfinder.PathFinder;
 import client.gamelogic.pathfinder.helpers.MapTerritories;
 import client.gamelogic.pathfinder.helpers.PathFinderData;
-import client.mvc.controller.MVCController;
+import client.mvc.controller.MvcController;
+import client.mvc.model.MvcNotificationCollector;
 import client.mvc.model.gamemap.ClientHalfMap;
 import client.network.ClientNetwork;
 import client.network.servercompatlayer.ServerDataEnvelope;
@@ -18,7 +20,7 @@ import messagesbase.messagesfromclient.EMove;
 public class GameManager {
 
 	private ClientNetwork theNetwork;
-	private MVCController mvcController;
+	private MvcController mvcController;
 	private PathFinder pathFinder;
 	
 	private boolean gameOver;
@@ -30,7 +32,7 @@ public class GameManager {
 	 * @param model 
 	 * @param view
 	 */
-	public GameManager(ClientNetwork network, MVCController mvcController) {
+	public GameManager(ClientNetwork network, MvcController mvcController) {
 		this.theNetwork = network;
 		this.mvcController = mvcController;
 		this.pathFinder = PathFinder.getUndifinedInstance();
@@ -77,7 +79,10 @@ public class GameManager {
 	
 	private ClientHalfMap generateValidHalfMap() {
 		MapGenerator generator = new MapGenerator();
-		MapValidator validator = new MapValidator();
+		
+		NotificationCollector mvcNotificationCollector = mvcController.getTechnicalInternalsModel();
+		MapValidator validator = new MapValidator(mvcNotificationCollector); // Dependency injection to link the mvc with the business logic
+		
 		ClientHalfMap testHalfMap = generator.offerHalfMap();
 
 		while (!validator.mapIsValid(testHalfMap)) {

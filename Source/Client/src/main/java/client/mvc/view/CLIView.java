@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import client.mvc.model.GameModel;
+import client.mvc.model.MvcNotificationCollector;
 import client.mvc.model.gamemap.GameMap;
 import client.mvc.model.gamemap.mapelements.Coordinates;
 import client.mvc.model.gamemap.mapelements.MapNode;
@@ -24,12 +25,32 @@ public class CLIView {
         gameModel.addListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                handlePropertyChange(evt, gameModel);
+                handleGameModelPropertyChange(evt, gameModel);
             }
         });
     }
+    
+    public void setUpListeners(MvcNotificationCollector technicalInternalsModel) {
+		
+    	technicalInternalsModel.addListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                handleTechnicalInternalsPropertyChange(evt, technicalInternalsModel);
+            }
+        });
+		
+	}
+    
+    
+    
 
-    private void handlePropertyChange(PropertyChangeEvent evt, GameModel model) {
+    protected void handleTechnicalInternalsPropertyChange(PropertyChangeEvent evt, MvcNotificationCollector technicalInternalsModel) {
+		
+    	// Every time a notification gets added to the list, print it out to the console
+    	System.out.println(technicalInternalsModel.getNotifications().getLast());
+	}
+
+	private void handleGameModelPropertyChange(PropertyChangeEvent evt, GameModel model) {
         String propertyName = evt.getPropertyName();
 
         switch (propertyName) {
@@ -131,4 +152,6 @@ public class CLIView {
     private void printLossMessage() {
         System.out.println("SORRY! YOU LOST THE GAME!");
     }
+
+	
 }

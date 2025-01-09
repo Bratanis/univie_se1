@@ -7,15 +7,17 @@ import java.net.URL;
 
 import client.customexceptions.UserInputException;
 import client.gamelogic.manager.GameManager;
-import client.mvc.controller.MVCController;
+import client.gamelogic.mapcreation.validation.NotificationCollector.NotificationCollector;
+import client.mvc.controller.MvcController;
 import client.mvc.model.GameModel;
+import client.mvc.model.MvcNotificationCollector;
 import client.mvc.view.CLIView;
 import client.network.ClientNetwork;
 import messagesbase.UniqueGameIdentifier;
 
 public class MainClient {
 
-	public static void main(String[] args) throws UserInputException {
+	public static void main(String[] args)  {
 		
        // TR http://swe1.wst.univie.ac.at:18235 GameID 
 		try {
@@ -36,7 +38,10 @@ public class MainClient {
 			GameModel theModel = new GameModel();
 			CLIView theView = new CLIView();
 			
-			MVCController mvcCtl= new MVCController (theModel, theView);
+			// Create the notification collector here to enable dependency injection where it is needed
+			MvcNotificationCollector mvcNotificationCollector = new MvcNotificationCollector();
+			
+			MvcController mvcCtl= new MvcController (theModel, theView, mvcNotificationCollector); // Dependency injection for modularity 
 	
 			GameManager theController = new GameManager(theNetwork, mvcCtl); // Dependency injection for modularity 
 			theController.initializeGame(); // Register the client
@@ -45,6 +50,7 @@ public class MainClient {
 			
 		} catch (UserInputException e) {
 			e.printStackTrace();
+			System.exit(-1);
 		}
 	}
 	
