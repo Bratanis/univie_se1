@@ -83,10 +83,10 @@ public class GameManager {
 		NotificationCollector mvcNotificationCollector = mvcController.getTechnicalInternalsModel();
 		MapValidator validator = new MapValidator(mvcNotificationCollector); // Dependency injection to link the mvc with the business logic
 		
-		ClientHalfMap testHalfMap = generator.offerHalfMap();
+//		ClientHalfMap testHalfMap = generator.offerHalfMap();
 
 		//Place an invalid map initially to showcase the map validation internals
-//		ClientHalfMap testHalfMap = new ClientHalfMap(ClientHalfMap.getGrassOnlyMapFields());
+		ClientHalfMap testHalfMap = new ClientHalfMap(ClientHalfMap.getGrassOnlyMapFields());
 		
 		while (!validator.mapIsValid(testHalfMap)) {
 //			logger.info("Generated an invalid map. Retrying...");

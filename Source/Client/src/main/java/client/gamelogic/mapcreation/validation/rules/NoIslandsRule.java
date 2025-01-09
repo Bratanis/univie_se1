@@ -66,6 +66,7 @@ public class NoIslandsRule implements ValidationRule{
 					// If its not found in the list of visited fields return false
 					if (!visited.contains(targetCoordinates)) {
 						collector.addNotification("Found a field that cannot be visited! The map has islands!");
+						return;
 					}
 				}
 			}

@@ -122,7 +122,7 @@ public class GameModel {
 	public void nextRound() {
 		int oldRound = round;
 		++ round;
-		support.firePropertyChange("Round changed!", oldRound, round);
+		support.firePropertyChange("Round Changed!", oldRound, round);
 	}
 	
 
