@@ -85,6 +85,9 @@ public class GameManager {
 		
 		ClientHalfMap testHalfMap = generator.offerHalfMap();
 
+		//Place an invalid map initially to showcase the map validation internals
+//		ClientHalfMap testHalfMap = new ClientHalfMap(ClientHalfMap.getGrassOnlyMapFields());
+		
 		while (!validator.mapIsValid(testHalfMap)) {
 //			logger.info("Generated an invalid map. Retrying...");
 			testHalfMap = generator.offerHalfMap();

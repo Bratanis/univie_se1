@@ -12,6 +12,7 @@ import client.mvc.controller.MvcController;
 import client.mvc.model.GameModel;
 import client.mvc.model.MvcNotificationCollector;
 import client.mvc.view.CLIView;
+import client.mvc.view.EmojiCliView;
 import client.network.ClientNetwork;
 import messagesbase.UniqueGameIdentifier;
 
@@ -36,7 +37,7 @@ public class MainClient {
 			ClientNetwork theNetwork = new ClientNetwork(serverBaseUrl, currentGameID);	
 			
 			GameModel theModel = new GameModel();
-			CLIView theView = new CLIView();
+			CLIView theView = new EmojiCliView();
 			
 			// Create the notification collector here to enable dependency injection where it is needed
 			MvcNotificationCollector mvcNotificationCollector = new MvcNotificationCollector();
