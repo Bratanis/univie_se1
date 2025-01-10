@@ -1,0 +1,52 @@
+
+    Netzwerk:
+      Kurzbeschreibung: 
+        -My old network class as well as the helper classes from the same package
+      Quellen
+        - My project from SS24
+
+    Benutzeroberfläche & MVC:
+      Kurzbeschreibung: 
+        - Parts of the Model and View are taken from my old project with minor changes and improvements.
+          The structure of the model and view is completely different. The structure of the MVC itself
+          is also completely different and based on my own understanding of the concept from the lecture.
+      Quellen
+        - My project from SS24
+
+    Kartengenerierung:
+      Kurzbeschreibung: 
+        - Almost the whole map generation was taken from my SS24 project with almost no changes.
+      Quellen
+        - My project from SS24
+
+    Wegfindung:
+        - Nothing
+
+    Datenstrukturen:
+      Kurzbeschreibung: 
+        - Coordinates, MapNode, GameMap, and other model classes are taken from my old project
+      Quellen
+        - My project from SS24
+
+    Business Logik (Logik/Algorithmen die nicht zu den vorherigen Themen passen):
+        - Nothing
+
+    Qualitätsfaktoren - Fehlerbehandlung:
+      Kurzbeschreibung: 
+        - The way I am logging errors and throwing exceptions is similar to the way I did it last semester
+      Quellen
+        - My project from SS24
+
+    Qualitätsfaktoren - Testing:
+      Kurzbeschreibung: 
+        - A lot of the information I got about writing tests was from tutorials and chatGPT. On occasion I have 
+          used chatGPT to help me debug a problem, and have pasted in it's solution, whenever it was valid.
+      Quellen
+        - chatGPT 4o prompts such as: "What is a negativity test? Give an example" or "How is Mockito used? What for?"
+          or "Can a mock actually store data in itself?"
+        - chatGPT 4o for debugging with prompts such as "Why could the following code be throwing a NullPointerException?"
+
+    Sonstige Quellen (welche nicht zu den vorherigen Punkten eingeordnet werden können)
+      Kurzbeschreibung: 
+        - ChatGPT for help debugging problems such as NullPointerExceptions or unexpected behavior was used throught 
+          most of the project but especially for the tests.
