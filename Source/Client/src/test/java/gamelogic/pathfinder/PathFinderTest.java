@@ -107,7 +107,7 @@ class PathFinderTest {
 
 //        verify(mockState).determineNextMoves(any());
         assertNotNull(nextMove);
-    }
+    } 
 
     @Test
     void testGetNextMoveOnUndefinedPF() {
