@@ -11,7 +11,6 @@ import client.mvc.model.MvcNotificationCollector;
 import client.mvc.model.gamemap.GameMap;
 import client.mvc.model.gamemap.mapelements.Coordinates;
 import client.mvc.model.gamemap.mapelements.MapNode;
-import messagesbase.messagesfromclient.ETerrain;
 
 public abstract class CLIView {
 
@@ -44,41 +43,41 @@ public abstract class CLIView {
     
     
 
-    public void handleTechnicalInternalsPropertyChange(PropertyChangeEvent evt, MvcNotificationCollector technicalInternalsModel) {
-        if ("Added notification".equals(evt.getPropertyName())) {
-            String latestNotification = (String) evt.getNewValue();
+    public void handleTechnicalInternalsPropertyChange(PropertyChangeEvent event, MvcNotificationCollector technicalInternalsModel) {
+        if ("Added notification".equals(event.getPropertyName())) {
+            String latestNotification = (String) event.getNewValue();
             System.out.println(latestNotification); // Print only the latest notification every time a change gets fired!
         }
     }
+ 
 
-
-	private void handleGameModelPropertyChange(PropertyChangeEvent evt, GameModel model) {
-        String propertyName = evt.getPropertyName();
+	public void handleGameModelPropertyChange(PropertyChangeEvent event, GameModel model) {
+        String propertyName = event.getPropertyName();
 
         switch (propertyName) {
             case "Map Changed!" -> {
-                GameMap newMap = (GameMap) evt.getNewValue();
+                GameMap newMap = (GameMap) event.getNewValue();
                 printGameMap(newMap, model.isTreasureCollected());
             }
             case "Treausre Collected!" -> {
-                if ((boolean) evt.getNewValue()) {
-                    System.out.println("Treasure Collected!");
+                if ((boolean) event.getNewValue()) {
+                    printTreasureCollected();
                     // Optionally trigger map re-render if needed
                     printGameMap(model.getGameMap(), true);
                 }
             }
             case "Game Won!" -> {
-                if ((boolean) evt.getNewValue()) {
+                if ((boolean) event.getNewValue()) {
                     printWinMessage();
                 }
             }
             case "Game Lost!" -> {
-                if ((boolean) evt.getNewValue()) {
+                if ((boolean) event.getNewValue()) {
                     printLossMessage();
                 }
             }
             case "Round Changed!" -> {
-                System.out.println("Round: " + evt.getNewValue());
+                System.out.println("Round: " + event.getNewValue());
             }
             default -> logger.warn("Unhandled property change: {}", propertyName);
         }
@@ -129,12 +128,16 @@ public abstract class CLIView {
         System.out.println(xIndexRow);
     }
 
-    private void printWinMessage() {
+    public void printWinMessage() {
         System.out.println("CONGRATS! YOU WON THE GAME!");
     }
 
-    private void printLossMessage() {
+    public void printLossMessage() {
         System.out.println("SORRY! YOU LOST THE GAME!");
+    }
+    
+    public void printTreasureCollected() {
+    	System.out.println("Treasure collected!");
     }
 
 	

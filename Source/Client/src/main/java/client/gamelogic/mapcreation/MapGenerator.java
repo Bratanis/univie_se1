@@ -52,6 +52,10 @@ public class MapGenerator {
 
 		return new ClientHalfMap(mapFields); // , myTreasureLocation
 	}
+	
+	public HashMap<Coordinates, MapNode> testInitMapFields() {
+		return initializeMapFields();
+	}
 
 	/**
 	 * Helper function that will generate a random map that contains the minimum

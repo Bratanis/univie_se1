@@ -30,7 +30,10 @@ public abstract class SearchHalfMapState extends NavigationState {
 	        	logger.debug("PathFinder remoing field " + field + " from considered fields: out of bounds for territory: " + targetTerritory);
 	            iterator.remove(); 
 	        }
-	    }
+	    } 
 	}
 	
+	public void testRemoveOutOfBoundsFields(Map<Coordinates, MapNode> fields) {
+		removeOutOfBoundsFields(fields);
+	}
 }

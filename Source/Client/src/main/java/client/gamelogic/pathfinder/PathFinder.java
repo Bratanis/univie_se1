@@ -36,13 +36,17 @@ public class PathFinder {
 		
 	}
 	
+	public NavigationState getCurrentNavigationState() {
+		return currentNavigationState;
+	}
+	
 	public static PathFinder getUndifinedInstance() {
 		return new PathFinder();
 	}
 	
 	public boolean isDefined() {
 		return this.isDefined;
-	}
+	} 
 
 	/**
 	 * @param gameProgress GameProgress

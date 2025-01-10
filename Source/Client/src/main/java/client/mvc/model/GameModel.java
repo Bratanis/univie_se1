@@ -79,6 +79,11 @@ public class GameModel {
 //		this.pathFinder = PathFinder.getUndifinedInstance();
 	}
 	
+	public GameModel(GameMap map) {
+		this();
+		this.gameMap = map;
+	}
+
 	private boolean hasFullMap() {
 		return (isValid() && gameMap.getClass() != ClientHalfMap.class);
 	}
@@ -88,7 +93,7 @@ public class GameModel {
 		updateGameMap (initialHalfMap);
 	}
 	
-	private void updateGameMap (GameMap newMap) {
+	public void updateGameMap (GameMap newMap) {
 		
 		if (hasFullMap() && gameMap.getClass() != newMap.getClass()) { 
 			throw new IllegalConversionException(

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 
+import client.mvc.model.MvcNotificationCollector;
 import client.mvc.model.gamemap.mapelements.MapNode;
 import client.mvc.view.EmojiCliView;
 import messagesbase.messagesfromclient.ETerrain;
@@ -118,4 +119,11 @@ class EmojiCliViewTest {
         
         assertTrue("testRenderInvalidTerrain() should have thrown an exception!", exception.getMessage().contains("mapNode is null"));
     }
+    
+   
 }
+
+
+
+
+
