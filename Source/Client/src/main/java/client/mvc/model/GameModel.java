@@ -222,6 +222,14 @@ public class GameModel {
 		return this.treasureCollected;
 	}
 
+	public boolean isGameWon() {
+		return gameWon;
+	}
+	
+	public boolean isGameLost() {
+		return gameLost;
+	}
+
 	/**
 	 * @param listener
 	 */

@@ -10,6 +10,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import client.customexceptions.MapNavigationException;
 import client.gamelogic.pathfinder.helpers.AppraisedMapField;
 import client.mvc.model.gamemap.mapelements.Coordinates;
 import client.mvc.model.gamemap.mapelements.MapNode;
@@ -25,7 +26,10 @@ public abstract class FieldAppraiser {
 	}
 
 	public AppraisedMapField getBestMapField (Map<Coordinates, MapNode> unappraisedFields) {
-		if (unappraisedFields.isEmpty())
+		if (unappraisedFields == null) {
+			throw new MapNavigationException("Cannot getBestMapField because unappraisedFields is NULL!");
+		}
+		if (unappraisedFields.isEmpty()) 
 			logger.warn("getBestMapField() method of FieldAppraiser got fed an empty map of fields!");
 		List<AppraisedMapField> allAppraisedFields = new ArrayList<>();
 		
@@ -34,13 +38,17 @@ public abstract class FieldAppraiser {
 			assert (appraisedField != null);
 			allAppraisedFields.add(appraisedField);
 		});
-		
+		 
 	    return getHighestPriorityField(allAppraisedFields);
+	}
+	
+	public AppraisedMapField testGetHighestPriorityField(List<AppraisedMapField> fields) {
+		return getHighestPriorityField(fields);
 	}
 	
 	private AppraisedMapField getHighestPriorityField(List<AppraisedMapField> fields) {
         if (fields == null || fields.isEmpty()) {
-            throw new IllegalArgumentException("Cannot get highest priority field; fields = " + fields);
+            throw new MapNavigationException("Cannot get highest priority field; fields = " + fields);
         }
 
         Collections.shuffle(fields); // Ensures equal priority fields are not always given in the same order (prevents infinite loops)
@@ -48,7 +56,7 @@ public abstract class FieldAppraiser {
         // Use streams to find the field with the highest priority
         return fields.stream()
                      .max(Comparator.naturalOrder())
-                     .orElseThrow(() -> new IllegalArgumentException("Unexpectedly, getHightesPriorityField() collection is empty!."));
+                     .orElseThrow(() -> new MapNavigationException("Unexpectedly, getHightesPriorityField() collection is empty!."));
     }
 	
 	protected abstract AppraisedMapField assignFieldPriority(Coordinates coordinates, MapNode mapNode);

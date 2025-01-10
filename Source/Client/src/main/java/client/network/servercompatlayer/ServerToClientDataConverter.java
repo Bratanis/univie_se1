@@ -47,7 +47,7 @@ public class ServerToClientDataConverter {
 	public ServerDataEnvelope getServerDataEnvelope(FullMap serverMap, boolean collectedTreasure, EPlayerGameState myWinOrLoss) {
 
 		GameMap newGameMap = convertToLocalGameMap(serverMap);
-		
+ 		
 //		GameProgress newGameProgress = determineGameProgress(newGameMap, collectedTreasure, myWinOrLoss); 
 	
 //		ServerDataEnvelope res = new ServerDataEnvelope(newGameMap, newGameProgress);
@@ -138,7 +138,7 @@ public class ServerToClientDataConverter {
 	}
 	
 	// Has side effects: pins key positions while iterating through the elements (not optimal, but easy and efficient)
-	private MapNode getLocalMapNode(FullMapNode sMapNode) {
+	public MapNode getLocalMapNode(FullMapNode sMapNode) {
 
 		boolean hasTreasure = (sMapNode.getTreasureState() == ETreasureState.MyTreasureIsPresent);
 		boolean hasCastle = (sMapNode.getFortState() == EFortState.MyFortPresent || sMapNode.getFortState() == EFortState.EnemyFortPresent);;

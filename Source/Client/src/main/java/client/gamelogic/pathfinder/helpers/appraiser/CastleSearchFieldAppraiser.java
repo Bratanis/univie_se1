@@ -13,12 +13,12 @@ public class CastleSearchFieldAppraiser extends HalfMapSearchFieldAppraiser{
 	}
 
 	@Override
-	protected boolean atGoal(MapNode mapNode) {
+	public boolean atGoal(MapNode mapNode) {
 		return mapNode.hasCastle();
 	}
 
 	@Override
-	protected boolean nearGoal(MapNode mapNode) {
+	public boolean nearGoal(MapNode mapNode) {
 		return mapNode.isNearCastle();
 	}
 

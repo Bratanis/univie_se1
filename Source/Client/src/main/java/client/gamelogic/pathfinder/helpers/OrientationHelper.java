@@ -43,5 +43,5 @@ public class OrientationHelper {
 		else throw new MapNavigationException("The destination field has to be either grass or mountain, "
 				+ "but instead is: " + destinationTerrain);
 	}
-
+ 
 }

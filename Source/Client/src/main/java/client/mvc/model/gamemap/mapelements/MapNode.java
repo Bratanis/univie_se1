@@ -101,6 +101,7 @@ public class MapNode {
 	 */
 	public MapNode(ETerrain terrain, boolean hasCastle, boolean hasTreasure, boolean hasMe, boolean hasEnemy) {
 		this(terrain, hasCastle);
+		this.hasTreasure = hasTreasure;
 		this.hasMe = hasMe;
 		this.hasEnemy = hasEnemy;
 	}
@@ -137,6 +138,11 @@ public class MapNode {
 	public int hashCode() {
 	    return Objects.hash(hasMe, hasCastle, hasTreasure, terrain);
 	}
+
+//	public boolean hasPlayer() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 	
 }

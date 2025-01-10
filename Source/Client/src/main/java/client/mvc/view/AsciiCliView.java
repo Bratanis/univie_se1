@@ -6,7 +6,7 @@ import messagesbase.messagesfromclient.ETerrain;
 public class AsciiCliView extends CLIView{
 
 	@Override
-	protected String mapNodeStringRender(MapNode mapNode, boolean treasureCollected) {
+	protected String getFieldAsCliRender(MapNode mapNode, boolean treasureCollected) {
         if (mapNode.hasCastle()) {
             return " _IHI_";
         } else if (mapNode.hasTreasure()) {

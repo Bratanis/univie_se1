@@ -21,7 +21,7 @@ public class ServerDataEnvelope {
 	
 	private PathFinderData pfData;
 	
-	private static boolean gameOver = false;
+	private boolean gameOver = false;
 	
 
 	
@@ -32,6 +32,7 @@ public class ServerDataEnvelope {
     private ServerDataEnvelope(Builder builder) {
         this.newModel = builder.newModel;
         this.pfData = builder.pfData;
+        this.gameOver = builder.gameOver;
     }
 
     /**
@@ -52,13 +53,14 @@ public class ServerDataEnvelope {
 
         private GameModel newModel;
         private PathFinderData pfData;
+        private boolean gameOver;
 
         private final GameMap mapForClient;
         private final Coordinates myPosition;
 
         private boolean treasureCollected = false;
         private boolean wonGame = false;
-        private boolean lostGame = false;
+        private boolean lostGame = false; 
 
         public Builder(GameMap mapForClient, Coordinates myPosition) {
             if (mapForClient == null || myPosition == null) {
@@ -75,15 +77,15 @@ public class ServerDataEnvelope {
 
         public Builder setWonGame(boolean wonGame) {
             this.wonGame = wonGame;
-            if(wonGame)
-            	gameOver = true;
+//            if(wonGame)
+//            	this.gameOver = true;
             return this;
         }
 
         public Builder setLostGame(boolean lostGame) {
             this.lostGame = lostGame;
-            if(lostGame)
-            	gameOver = true;
+//            if(lostGame)
+//            	this.gameOver = true;
             return this;
         }
 
@@ -93,6 +95,8 @@ public class ServerDataEnvelope {
             Map<Coordinates, MapNode> surroundings = mapForClient.getFieldsAround(myPosition);
             this.pfData = new PathFinderData(myPosition, surroundings, treasureCollected);
 
+            this.gameOver = wonGame || lostGame;
+            
             return new ServerDataEnvelope(this);
         }
     }
@@ -117,6 +121,18 @@ public class ServerDataEnvelope {
 	
 	public boolean isGameOver() {
 		return gameOver;
+	}
+
+	public boolean isTreasureCollected() {
+		return pfData.isTreasureCollected();
+	}
+
+	public boolean isGameWon() {
+		return newModel.isGameWon();
+	}
+	
+	public boolean isGameLost() {
+		return newModel.isGameLost();
 	}
 
 }

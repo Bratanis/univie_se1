@@ -112,14 +112,14 @@ public abstract class CLIView {
             if (targetNode == null) {
                 logger.warn("TargetNode with coordinates " + targetCoordinates + " is out of bounds!");
             }
-            formattedMapLine += mapNodeStringRender(targetNode, treasureCollected);
+            formattedMapLine += getFieldAsCliRender(targetNode, treasureCollected);
         }
 
         return formattedMapLine.concat("\n");
     }
     
 
-    protected abstract String mapNodeStringRender(MapNode mapNode, boolean treasureCollected);
+    protected abstract String getFieldAsCliRender(MapNode mapNode, boolean treasureCollected);
 
     private void printXIndexRow(int lastMapX) {
         String xIndexRow = "X: ";
